@@ -1,6 +1,6 @@
 # Código de conducta
 
-> Baton adopta el **Contributor Covenant 2.0**. Abajo está el texto oficial en inglés; la versión en español está en https://www.contributor-covenant.org/es/version/2/0/code_of_conduct/.
+> Baton adopta el **Contributor Covenant 2.0**. Para reportar en privado un problema de conducta, usa el [formulario privado de GitHub](https://github.com/Zartaroth/baton/security/advisories/new) y empieza el título con "Conducta:". Solo lo ven los mantenedores. Abajo está el texto oficial en inglés; la versión en español está en https://www.contributor-covenant.org/es/version/2/0/code_of_conduct/.
 
 ---
 
@@ -65,8 +65,10 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-the maintainer, [@Zartaroth](https://github.com/Zartaroth), using the contact listed on their GitHub profile.
+reported to the community leaders responsible for enforcement through
+GitHub's private reporting form at
+https://github.com/Zartaroth/baton/security/advisories/new (only maintainers can see it;
+start the title with "Conduct:").
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
