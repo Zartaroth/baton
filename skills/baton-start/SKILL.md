@@ -101,7 +101,7 @@ El mapa de módulos es el **backlog base**: las grandes partes del sistema (épi
 
 1. Ejecuta `python3 baton/bin/baton.py validar` y corrige hasta que diga `ok`.
 2. Ejecuta `python3 baton/bin/baton.py sync --autor <persona> --motivo "inicio del proyecto" --ref baton-start`.
-3. Muestra un resumen: la visión en 3 líneas, el stack, la configuración clave y el mapa de módulos. Indica el siguiente paso: "abrir el módulo `<primero>`; di **continúa** o usa `baton`".
+3. Muestra un resumen: la visión en 3 líneas, el stack, la configuración clave y el mapa de módulos. Indica el siguiente paso: "abrir el módulo `<primero>`; escribe **`/baton`** (o "continúa")".
 4. Propón hacer commit, pero no lo hagas sin permiso.
 
 ## Actualizar (Baton ya instalado)

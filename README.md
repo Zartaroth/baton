@@ -48,8 +48,8 @@ detallar un ítem → tests en rojo verificado → aprobación humana y congelam
 
 1. **Requisitos:** git, Python 3.10+ y PyYAML (`pip install pyyaml`).
 2. Copia las carpetas `skills/baton-*` a la carpeta de skills de tu agente (en Claude Code, `.claude/skills/`).
-3. En tu repositorio di **"continúa"**: el router `baton` lanza `baton-start`. Este detecta si el proyecto es nuevo o existente, entiende qué se va a construir, recomienda el stack según la escala, configura y arma el mapa de módulos.
-4. Desde ahí, **"continúa"** sigue diciendo qué rol tiene el turno y qué paso toca.
+3. En tu repositorio escribe **`/baton`**: como el proyecto no está iniciado, el router lanza `baton-start`. También puedes llamarlo directo con `/baton-start`. Este detecta si el proyecto es nuevo o existente, entiende qué se va a construir, recomienda el stack según la escala, configura y arma el mapa de módulos.
+4. Desde ahí, **`/baton`** (o "continúa") dice qué rol tiene el turno y qué paso toca, y lo ejecuta.
 
 ## Contenido
 

@@ -3,7 +3,7 @@
 **Objetivo:** recorrer todo el flujo con un proyecto mínimo y comprobar tres cosas:
 
 1. que Baton **funciona como se pensó**;
-2. que es **cómodo** de usar: decir "continúa" debería bastar;
+2. que es **cómodo** de usar: `/baton` debería bastar para empezar y para seguir;
 3. que **protege**: nadie cambia un test congelado sin pasar por el Navigator.
 
 El proyecto es pequeño a propósito, para gastar pocos tokens. Lo que se prueba es el flujo, no el código.
@@ -91,7 +91,7 @@ Solo actúa si el worktree está en la rama `piloto`.
 
 ### Reglas del piloto (también ahorran tokens)
 
-- **Arranca cada turno con "continúa"** (o "toma tu turno como driver" o "como verificador"). Si el agente necesita más explicación, es un defecto del traspaso o del router: anótalo.
+- **Arranca cada turno con `/baton`** (o "toma tu turno como driver" o "como verificador"). En las fases 3 y 4, alterna con "continúa" para probar que el router también reacciona a frases. Si el agente necesita más explicación, es un defecto del traspaso o del router: anótalo.
 - **Usa `/clear` al cambiar de fase o de turno.** Así se prueba el principio 5: cada rol debe poder continuar solo con los archivos.
 - **Ejecuta `/cost` al final de cada sesión** y anota el resultado en la bitácora.
 - **Si un agente lee archivos fuera de `baton-piloto`** (la metodología, `find /`), es un defecto: la skill no le bastó.
@@ -104,7 +104,7 @@ Marca cada casilla. Lo que no se cumpla va a la bitácora como defecto.
 
 ### Fase 1 · Inicio del proyecto (sesión A)
 
-Escribe solo **"continúa"**. No le adelantes nada.
+Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, el router debe lanzar `baton-start`.
 
 **Lo que respondes** (solo cuando te pregunte):
 
@@ -136,6 +136,7 @@ Escribe solo **"continúa"**. No le adelantes nada.
 **Verifica:**
 
 - [ ] El router anunció `Rol · Paso` y lanzó `baton-start` porque no había configuración.
+- [ ] *(Opcional, en otra sesión limpia)* "empecemos el proyecto", sin barra, también activa el router.
 - [ ] Usó `baton.py detectar` y **no exploró el repositorio a mano** ni leyó la metodología.
 - [ ] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y **esperó tu confirmación**.
 - [ ] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. `ADR-0001-stack.md` existe y tiene `## Revisar si`.
@@ -153,11 +154,11 @@ Estos cambios son a nivel de módulo; todavía no hay ítems.
 - [ ] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo.
 - [ ] Di "divide `liquidacion` en `liquidacion` y `recordatorios`". Debe crear el nuevo y anotar la división.
 - [ ] Di "descarta `exportar` y `recordatorios`". Deben quedar en `Descartado`, y BACKLOG.md debe seguir mostrándolos en el mapa.
-- [ ] `baton.py next --rol navigator` propone abrir `registro`, el `Planificado` de mayor prioridad.
+- [ ] `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad.
 
 ### Fase 3 · Módulo `registro` en Delegado (A → subagente → A → B → C → A)
 
-1. **Sesión A, "continúa" → abre `registro`** (`baton-module`).
+1. **Sesión A, `/baton` → abre `registro`** (`baton-module`).
    - [ ] Anunció `Rol: navigator · Paso: abrir módulo · Sobre: registro`.
    - [ ] **Entender:** propuso alcance, fuera de alcance y riesgos en un resumen corto, y esperó tu confirmación.
    - [ ] **Configurar:** recomendó Delegado, porque es un CRUD de bajo riesgo. Acéptalo. BACKLOG.md muestra `registro · Activo · Delegado ↓`.
@@ -239,7 +240,7 @@ Estos cambios son a nivel de módulo; todavía no hay ítems.
 
 - **Funciona como se pensó:** todas las casillas de las fases 1 a 4 están marcadas, o cada falla tiene su defecto anotado con el lugar donde corregirla.
 - **Es cómodo:**
-  - ningún turno necesitó más que "continúa" o "toma tu turno como <rol>" para arrancar;
+  - ningún turno necesitó más que `/baton`, "continúa" o "toma tu turno como <rol>" para arrancar;
   - no editaste a mano archivos que debería escribir una skill;
   - el inicio no se sintió como un formulario: entendió el proyecto y las recomendaciones tenían sentido;
   - el costo de Pair frente a Delegado se nota y se justifica.

@@ -74,7 +74,7 @@ Es la "spec" del módulo, pero corta.
 
 1. Ejecuta `python3 baton/bin/baton.py estado modulo:<m> Activo` y `python3 baton/bin/baton.py validar`.
 2. Ejecuta `python3 baton/bin/baton.py sync --autor <persona> --motivo "apertura del módulo <m>" --ref baton-module`. Si alguna diferencia de configuración tiene un motivo propio, pásalo con `--motivo-de`.
-3. Resume la configuración efectiva (marca ↓ si se bajó el control) y los ítems aceptados. Indica el siguiente paso: "detallar `<primer ítem>`; di **continúa** o usa `baton-item`".
+3. Resume la configuración efectiva (marca ↓ si se bajó el control) y los ítems aceptados. Indica el siguiente paso: "detallar `<primer ítem>`; escribe **`/baton`** (o "continúa")".
 
 ## C. Reconfigurar a mitad del módulo
 

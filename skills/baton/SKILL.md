@@ -1,18 +1,18 @@
 ---
 name: baton
-description: 'Punto de entrada de la metodología Baton. Responde "¿qué sigue?" o "continúa": lee el estado del proyecto (mapa de módulos, ítems y traspasos), anuncia qué rol tiene el turno y qué paso toca, y ejecuta la skill correspondiente. También resuelve los escalamientos del Navigator. Úsala siempre que no sepas qué skill de Baton usar, al abrir una sesión nueva, o cuando el usuario diga "continúa", "siguiente" o "toma tu turno".'
+description: 'Punto de entrada único de la metodología Baton (comando /baton). Úsala para empezar un proyecto ("empecemos", "inicia el proyecto", "start") y para avanzar ("continúa", "siguiente", "¿qué sigue?", "toma tu turno"). Lee el estado (mapa de módulos, ítems y traspasos), anuncia qué rol tiene el turno y qué paso toca, y ejecuta la skill correspondiente: si el proyecto no está iniciado, lanza baton-start. También resuelve los escalamientos del Navigator. Úsala siempre que no esté claro qué skill de Baton usar.'
 ---
 
 # baton
 
-**Rol:** cualquiera. Es el **router**: el humano solo necesita recordar esta skill. Las demás se pueden seguir llamando directamente.
+**Rol:** cualquiera. Es el **router**: el humano solo necesita recordar `/baton`, que sirve igual para empezar un proyecto vacío y para seguir a mitad del trabajo. Las demás skills se pueden seguir llamando directamente (`/baton-start`, `/baton-item`, etc.).
 
 ## Pasos
 
 1. Si no existe `baton/config.md`, el proyecto no empezó: ejecuta `baton-start`.
 2. Ejecuta `python3 baton/bin/baton.py next`. Si sabes el rol o la entidad de esta sesión, filtra con `--rol <rol>` y/o `--entidad <entidad>`.
 3. **Anuncia siempre en una línea quién actúa y qué paso toca:** `Rol: <rol> · Paso: <qué> · Sobre: <módulo o ítem>`. Que haya un router no debe ocultar qué rol está actuando.
-4. Si el humano dijo "continúa" o "toma tu turno":
+4. Si el humano invocó `/baton` sin más, o dijo "empecemos", "continúa" o "toma tu turno":
    1. Averigua el rol de esta sesión. Puede estar en la instrucción, en el traspaso o en `config.md` según tu entidad. Si no está claro, pregunta.
    2. Toma la primera tarea de ese rol que no esté bloqueada: primero las del mapa de módulos y después los ítems por prioridad, con un traspaso `Pendiente` dirigido a ti si corresponde.
    3. Ejecuta la skill que corresponde:

@@ -2,11 +2,11 @@
 
 Skills del núcleo de la metodología, en formato Agent Skills (`SKILL.md`). Ver [METODOLOGIA.md](../METODOLOGIA.md) y [FORMATOS.md](../FORMATOS.md).
 
-**Solo hace falta recordar una: `baton`.** Lee el estado del proyecto, anuncia qué rol tiene el turno y qué paso toca, y llama a la skill que corresponde. Basta con decir "continúa". Las demás también se pueden llamar directamente.
+**Solo hace falta recordar un comando: `/baton`.** Sirve igual para empezar un proyecto vacío y para seguir a mitad del trabajo: lee el estado, anuncia qué rol tiene el turno y qué paso toca, y llama a la skill que corresponde. También reacciona a frases como "empecemos" o "continúa". Las demás skills se pueden llamar directamente (`/baton-start`, `/baton-item`, etc.).
 
 | Skill | Rol | Cuándo |
 |---|---|---|
-| `baton` | cualquiera | "¿qué sigue?", "continúa", "toma tu turno"; resuelve escalamientos |
+| `baton` | cualquiera | `/baton`: empezar o seguir ("empecemos", "continúa", "toma tu turno"); resuelve escalamientos |
 | `baton-start` | humano + Navigator | una vez: entender el proyecto (nuevo o existente) → escala y stack → configurar → mapa de módulos. También para actualizar visión, stack o configuración |
 | `baton-module` | Navigator | cambiar el mapa de módulos; abrir un módulo (entender → configurar → ítems); reconfigurarlo o cerrarlo |
 | `baton-item` | Navigator | detallar un ítem: criterios + slices, con una sola confirmación → Listo |
@@ -43,7 +43,7 @@ Las skills no mandan a leer la documentación de la metodología: todo lo que el
 
 ## Instalación
 
-Copia las carpetas `baton` y `baton-*` a la carpeta de skills de tu herramienta. En Claude Code es `.claude/skills/` del proyecto o `~/.claude/skills/`. Después, en tu repositorio, di **"continúa"** o ejecuta `baton-start`.
+Copia las carpetas `baton` y `baton-*` a la carpeta de skills de tu herramienta. En Claude Code es `.claude/skills/` del proyecto o `~/.claude/skills/`. Después, en tu repositorio, escribe **`/baton`** (o `/baton-start`).
 
 ## Pruebas
 

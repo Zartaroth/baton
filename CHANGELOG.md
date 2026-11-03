@@ -20,7 +20,7 @@ Cambios que salieron de la primera prueba piloto.
 - El sync registra los cambios de la visión y de los ADR.
 
 ### Cambiado
-- Hay un único punto de entrada, el router **`baton`** ("continúa"). Anuncia el rol y el paso, y las demás skills se pueden seguir llamando directamente.
+- Hay un único punto de entrada, el router **`/baton`**, que sirve para empezar ("empecemos") y para seguir ("continúa"). Anuncia el rol y el paso, y las demás skills se pueden seguir llamando directamente.
 - `baton-setup` pasa a ser `baton-start`.
 - `baton-kickoff` pasa a ser `baton-module`, que ahora también define los ítems del módulo.
 - `baton-refine` y `baton-plan` se unen en `baton-item`, con una sola confirmación.
