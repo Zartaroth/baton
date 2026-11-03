@@ -5,7 +5,7 @@ Hace lo que no debe depender del criterio de un agente: validar archivos,
 calcular la configuración efectiva, decir a quién le toca el turno, sincronizar
 el backlog y el historial, mantener acceptance.lock y crear traspasos.
 
-Requiere Python 3.9+ y PyYAML (pip install pyyaml).
+Requiere Python 3.10+ y PyYAML (pip install pyyaml).
 Formatos: ver FORMATOS.md de la metodología.
 """
 from __future__ import annotations

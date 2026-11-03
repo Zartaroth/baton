@@ -21,7 +21,7 @@ Skills del núcleo de la metodología, en formato Agent Skills (`SKILL.md`). Ver
 
 Así, dos agentes distintos que siguen la misma skill obtienen los mismos archivos.
 
-`baton.py` vive en `baton-setup/assets/`. `baton-setup` lo copia al proyecto, en `baton/bin/baton.py`, y desde ahí lo usan las demás skills. Requiere Python 3.9+ y PyYAML.
+`baton.py` vive en `baton-setup/assets/`. `baton-setup` lo copia al proyecto, en `baton/bin/baton.py`, y desde ahí lo usan las demás skills. Requiere Python 3.10+ y PyYAML.
 
 ## Instalación
 
