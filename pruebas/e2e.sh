@@ -27,7 +27,9 @@ echo "# conftest" > tests/conftest.py
 python3 baton/bin/baton.py estado US-001 TestsEnRevision >/dev/null
 git add -A && git commit -qm "tests" >/dev/null && ok "autor commitea tests nuevos (ítem en TestsEnRevision)"
 python3 baton/bin/baton.py lock aprobar --item US-001 --aprobado-por sonnet >/dev/null 2>&1 && bad "driver aprueba" || ok "driver no puede aprobar"
+mkdir -p tests/acceptance/catalogo/__pycache__ && echo basura > tests/acceptance/catalogo/__pycache__/US_001_listar_test.cpython-314.pyc
 python3 baton/bin/baton.py lock aprobar --item US-001 --aprobado-por juan >/dev/null && python3 baton/bin/baton.py estado US-001 TestsCongelados >/dev/null
+grep -q "pyc" baton/acceptance.lock && bad "el lock congeló un .pyc" || ok "el lock ignora __pycache__"
 python3 baton/bin/baton.py sync --autor juan --motivo "aprobación inicial" >/dev/null && git add -A && git commit -qm approve >/dev/null && ok "aprobación + commit"
 # ataques
 sed -i 's/self.fail("no implementado")/pass/' tests/acceptance/catalogo/US_001_listar_test.py

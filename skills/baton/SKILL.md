@@ -11,7 +11,7 @@ description: 'Punto de entrada único de la metodología Baton (comando /baton).
 
 1. Si no existe `baton/config.md`, el proyecto no empezó: ejecuta `baton-start`.
 2. Ejecuta `python3 baton/bin/baton.py next`. Si sabes el rol o la entidad de esta sesión, filtra con `--rol <rol>` y/o `--entidad <entidad>`.
-3. **Anuncia siempre en una línea quién actúa y qué paso toca:** `Rol: <rol> · Paso: <qué> · Sobre: <módulo o ítem>`. Que haya un router no debe ocultar qué rol está actuando.
+3. **Anuncia siempre, antes de cualquier otra cosa y aunque la skill ya esté cargada, en una línea quién actúa y qué paso toca:** `Rol: <rol> · Paso: <qué> · Sobre: <módulo o ítem>`. Que haya un router no debe ocultar qué rol está actuando.
 4. Si el humano invocó `/baton` sin más, o dijo "empecemos", "continúa" o "toma tu turno":
    1. Averigua el rol de esta sesión. Puede estar en la instrucción, en el traspaso o en `config.md` según tu entidad. Si no está claro, pregunta.
    2. Toma la primera tarea de ese rol que no esté bloqueada: primero las del mapa de módulos y después los ítems por prioridad, con un traspaso `Pendiente` dirigido a ti si corresponde.
@@ -42,6 +42,8 @@ description: 'Punto de entrada único de la metodología Baton (comando /baton).
 4. Ejecuta sync con el motivo de la decisión.
 
 ## No hagas
+
+- No leas el código de `baton.py`: cada skill trae las reglas que necesita. Usa `python3 baton/bin/baton.py <comando> --help` y `validar`.
 
 - No tomes trabajo de otro rol aunque esté libre. Que dos roles trabajen sobre lo mismo rompe los turnos.
 - No saltes el límite de WIP sin que el humano lo decida.

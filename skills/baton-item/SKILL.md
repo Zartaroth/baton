@@ -67,7 +67,13 @@ No leas la documentación de la metodología: lo necesario está aquí y en `bat
 
 ## 3. Una sola confirmación
 
-Muestra **juntos** los criterios y los slices, de forma compacta:
+**El humano solo aprueba lo que tiene en pantalla.** El orden es este:
+
+1. **Primero, las decisiones abiertas** (las que cambian criterios): resuélvelas en una tanda interactiva. No incluyas la aprobación en esa tanda, porque sus respuestas cambian lo que se aprueba.
+2. **Después, muestra en un mensaje de texto** los criterios y los slices juntos, ya con esas decisiones aplicadas. Cada criterio va en una línea con su **Entonces** concreto (el dato, el mensaje o el archivo que se comprueba), no solo con su nombre. Lo que escribiste en tu razonamiento interno no cuenta: el humano no lo ve.
+3. **Recién entonces, pide la aprobación** con una pregunta interactiva aparte.
+
+Forma compacta del mensaje:
 
 ```
 US-001 · Registrar gasto
@@ -78,6 +84,18 @@ Seguridad: … · Preguntas abiertas: ninguna
 ```
 
 Pide la confirmación con una pregunta interactiva ("Apruebo" o "Ajustar…"). Ajusta hasta que el humano apruebe, y recién entonces escribe el ítem y el plan.
+
+### Reglas que necesitas (no leas el código de `baton.py`)
+
+- **Criterios:** `baton.py` los reconoce por el encabezado `### AC-<n> · <nombre>` dentro de `## Criterios de aceptación`. Un criterio retirado lleva `~~` en el título.
+- **Definition of Ready** (lo que exige `estado <ítem> Listo`):
+  - la sección de propósito de su tipo, con contenido;
+  - al menos un criterio vigente, y cada uno con Dado, Cuando y Entonces;
+  - `## Seguridad` escrita;
+  - `## Preguntas abiertas` vacía o "Ninguna";
+  - el plan en `baton/modules/<m>/plans/<ítem>.md`;
+  - el módulo en `Activo`.
+- Si dudas de un comando, usa `python3 baton/bin/baton.py <comando> --help`. Para comprobar reglas, `validar`.
 
 ## 4. Registrar y entregar
 

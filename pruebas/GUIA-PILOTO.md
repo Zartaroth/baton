@@ -157,37 +157,37 @@ Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, 
 
 Estos cambios son a nivel de módulo; todavía no hay ítems. Empieza con `/baton-module`, o con `/baton` y pide el cambio.
 
-- [ ] Pregunta "¿qué módulos crees que faltan?". Debe proponerlos como **candidatos** en una pregunta interactiva de selección múltiple. Deja uno "para después" si lo ofrece (queda `Candidato`) y descarta los demás. Debe pedirte un motivo concreto, no "el humano lo descarta", y no mover ninguno sin tu respuesta.
-- [ ] Di "divide `cuentas` en `registro` (registrar y listar gastos) y `saldos` (calcular cuánto debe cada uno)". Motivo, si lo pide: "quiero distinto control: registrar es de bajo riesgo y los saldos son cálculo de dinero". Debe crear los dos en `Planificado` y descartar `cuentas`, porque ninguno conserva su nombre y objetivo, y anotar la división. Las prioridades deben quedar `registro` 1, `saldos` 2 y `liquidacion` 3.
-- [ ] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo, y la visión debe seguir coherente con el mapa: si CSV estaba fuera de alcance, lo advierte o la actualiza.
-- [ ] Di "descarta `exportar`". Debe quedar en `Descartado` con tu motivo, y BACKLOG.md debe seguir mostrándolo en el mapa.
-- [ ] **Invariante (pendiente de la fase 1):** di "que sonnet también apruebe tests". Debe negarse y citar la invariante (el driver no aprueba tests), y ofrecer alternativas.
-- [ ] **Nombre (D16):** di "el proyecto se llama `gastos`". Debe cambiar `proyecto` en `config.md` y registrar el cambio con su motivo en `HISTORY.md`.
-- [ ] `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad.
-- [ ] **Al terminar:** te mostró el mapa de módulos en una tabla.
-- [ ] **Sin contaminación:** ningún agente lee archivos fuera del piloto.
+- [x] ⚠️ Pregunta "¿qué módulos crees que faltan?". Debe proponerlos como **candidatos** en una pregunta interactiva de selección múltiple. Deja uno "para después" si lo ofrece (queda `Candidato`) y descarta los demás. Debe pedirte un motivo concreto, no "el humano lo descarta", y no mover ninguno sin tu respuesta.
+- [x] ✅ Di "divide `cuentas` en `registro` (registrar y listar gastos) y `saldos` (calcular cuánto debe cada uno)". Motivo, si lo pide: "quiero distinto control: registrar es de bajo riesgo y los saldos son cálculo de dinero". Debe crear los dos en `Planificado` y descartar `cuentas`, porque ninguno conserva su nombre y objetivo, y anotar la división. Las prioridades deben quedar `registro` 1, `saldos` 2 y `liquidacion` 3.
+- [x] ✅ Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo, y la visión debe seguir coherente con el mapa: si CSV estaba fuera de alcance, lo advierte o la actualiza.
+- [x] ✅ Di "descarta `exportar`". Debe quedar en `Descartado` con tu motivo, y BACKLOG.md debe seguir mostrándolo en el mapa.
+- [x] ✅ **Invariante (pendiente de la fase 1):** di "que sonnet también apruebe tests". Debe negarse y citar la invariante (el driver no aprueba tests), y ofrecer alternativas.
+- [x] ✅ **Nombre (D16):** di "el proyecto se llama `gastos`". Debe cambiar `proyecto` en `config.md` y registrar el cambio con su motivo en `HISTORY.md`.
+- [x] ✅ `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad.
+- [x] ✅ **Al terminar:** te mostró el mapa de módulos en una tabla.
+- [x] ✅ **Sin contaminación:** ningún agente lee archivos fuera del piloto.
 
 ### Fase 3 · Módulo `registro` en Delegado (A → subagente → A → B → C → A)
 
 1. **Sesión A, `/baton` → abre `registro`** (`baton-module`).
-   - [ ] Anunció `Rol: navigator · Paso: abrir módulo · Sobre: registro`.
-   - [ ] **Entender:** propuso alcance, fuera de alcance y riesgos en un resumen corto, y esperó tu confirmación.
-   - [ ] **Configurar:** recomendó Delegado, porque es un CRUD de bajo riesgo. Acéptalo. BACKLOG.md muestra `registro · Activo · Delegado ↓`.
-   - [ ] `module.md` guarda **solo** las diferencias, con `motivo` y `desde`. `baton.py efectiva modulo:registro` muestra el verificador activo, `fuente: forzado por Delegado`.
-   - [ ] **Ítems:** propuso historias verticales (INVEST). **Acepta solo 2:** registrar y listar. Corrige el título de una. Si propone un ítem técnico, por ejemplo "archivo corrupto", déjalo como `Candidato`. Solo se crearon las aceptadas, en `Pendiente`, con `## Valor` en una línea.
+   - [ ] ❌ Anunció `Rol: navigator · Paso: abrir módulo · Sobre: registro`.
+   - [ ] ⚠️ **Entender:** propuso alcance, fuera de alcance y riesgos en un resumen corto, y esperó tu confirmación.
+   - [x] ✅ **Configurar:** recomendó Delegado, porque es un CRUD de bajo riesgo. Acéptalo. BACKLOG.md muestra `registro · Activo · Delegado ↓`.
+   - [x] ✅ `module.md` guarda **solo** las diferencias, con `motivo` y `desde`. `baton.py efectiva modulo:registro` muestra el verificador activo, `fuente: forzado por Delegado`.
+   - [x] ✅ **Ítems:** propuso historias verticales (INVEST). **Acepta solo 2:** registrar y listar. Corrige el título de una. Si propone un ítem técnico, por ejemplo "archivo corrupto", déjalo como `Candidato`. Solo se crearon las aceptadas, en `Pendiente`, con `## Valor` en una línea.
 2. **Sesión A, "continúa" → detalla cada ítem** (`baton-item`).
-   - [ ] Mostró **juntos** los criterios y los slices, y pidió **una sola confirmación**.
-   - [ ] Los criterios tienen datos concretos e incluyen errores (monto negativo, pagador fuera de la lista).
-   - [ ] `## Seguridad` está escrita, aunque sea "sin impacto".
-   - [ ] El primer slice del primer ítem es el esqueleto andante del proyecto: estructura, runner de tests y CLI mínima. Ningún slice tiene más de 2 criterios.
-   - [ ] Lanzó al **autor de tests como subagente** sin que se lo pidieras.
+   - [ ] ❌ Mostró **juntos** los criterios y los slices, y pidió **una sola confirmación**.
+   - [x] ✅ Los criterios tienen datos concretos e incluyen errores (monto negativo, pagador fuera de la lista).
+   - [x] ✅ `## Seguridad` está escrita, aunque sea "sin impacto".
+   - [x] ✅ El primer slice del primer ítem es el esqueleto andante del proyecto: estructura, runner de tests y CLI mínima. Ningún slice tiene más de 2 criterios.
+   - [x] ✅ Lanzó al **autor de tests como subagente** sin que se lo pidieras.
 3. **Autor de tests (subagente).**
-   - [ ] Hay un archivo por ítem, con `<ID>_AC_<n>` en el nombre de cada test.
-   - [ ] El traspaso incluye la razón de cada fallo en rojo.
-   - [ ] No escribió código de producción.
+   - [x] ✅ Hay un archivo por ítem, con `<ID>_AC_<n>` en el nombre de cada test.
+   - [x] ✅ El traspaso incluye la razón de cada fallo en rojo.
+   - [x] ⚠️ No escribió código de producción.
 4. **Sesión A, "continúa" → aprobación en lote** (`baton-approve`).
-   - [ ] Te mostró cada criterio junto a su test y **esperó tu "apruebo"**.
-   - [ ] `baton/acceptance.lock` tiene las líneas con tu nombre, y te propuso hacer commit.
+   - [ ] ❌ Te mostró cada criterio junto a su test y **esperó tu "apruebo"**.
+   - [x] ⚠️ `baton/acceptance.lock` tiene las líneas con tu nombre, y te propuso hacer commit.
 5. **Sesión B (Sonnet), "toma tu turno como driver".** Repite con `/clear` entre slices.
    - [ ] Trabajó solo con el traspaso: no pidió contexto de otras conversaciones.
    - [ ] Pasó por rojo → verde → refactor, con tests unitarios propios.

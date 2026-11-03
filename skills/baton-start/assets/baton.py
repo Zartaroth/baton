@@ -270,7 +270,8 @@ class Proyecto:
             return []
         pref = id_test(item_id)
         return sorted(self.rel(p) for p in base.rglob("*")
-                      if p.is_file() and (p.name.startswith(pref + "_") or p.name.startswith(item_id + "_")))
+                      if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
+                      and (p.name.startswith(pref + "_") or p.name.startswith(item_id + "_")))
 
     def entidad(self, nombre: str) -> dict:
         return (self.config.get("entidades") or {}).get(nombre) or {}

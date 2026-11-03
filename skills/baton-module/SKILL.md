@@ -1,6 +1,6 @@
 ---
 name: baton-module
-description: Maneja los módulos de la metodología Baton. Edita el mapa de módulos (agregar, dividir, fusionar, descartar, priorizar, aceptar candidatos) y abre un módulo para desarrollarlo. Al abrirlo, entiende su alcance y riesgos, recomienda la configuración según el riesgo y define con el humano la lista de ítems del módulo. Úsala para abrir el siguiente módulo, cambiar el mapa, reconfigurar un módulo o cerrarlo.
+description: Maneja los módulos de la metodología Baton. Edita el mapa de módulos (agregar, dividir, fusionar, descartar, priorizar, aceptar candidatos) y abre un módulo para desarrollarlo. Al abrirlo, entiende su alcance y riesgos, recomienda la configuración según el riesgo y define con el humano la lista de ítems del módulo. Úsala para abrir el siguiente módulo, cambiar el mapa, reconfigurar un módulo o cerrarlo, y también ante preguntas como "¿qué módulos faltan?" o "¿qué más agregarías?".
 ---
 
 # baton-module
@@ -106,6 +106,32 @@ Es la "spec" del módulo, pero corta.
 2. Si la autonomía es Delegado, presenta al humano los reportes de slice del módulo para la revisión final.
 3. Ejecuta `python3 baton/bin/baton.py estado modulo:<m> Cerrado`. El comando rechaza el cierre si quedan ítems en desarrollo.
 4. Ejecuta sync con el motivo.
+
+## Reglas que necesitas (no leas el código de `baton.py`)
+
+- **Archivos:**
+  - el módulo va en `baton/modules/<m>/module.md`, donde `<m>` es el campo `modulo`;
+  - el ítem va en `baton/backlog/items/<ID>.md`, donde el nombre del archivo es su `id`;
+  - el id es el prefijo de `tipos` en `config.md` más un número de 3 cifras (`US-001`).
+- **Diferencias de configuración** en `module.md`:
+  ```yaml
+  config:
+    autonomia: { valor: Delegado, motivo: "...", desde: 2026-11-03 }
+  ```
+  Claves permitidas: `autonomia`, `roles.<rol>`, `roles.verificador.activo`, `slice_max.criterios` y `slice_max.minutos`.
+- **Estados de módulo:**
+  - `Candidato` pasa a `Planificado` o `Descartado`;
+  - `Planificado` pasa a `Activo` o `Descartado`;
+  - `Activo` pasa a `Cerrado` o vuelve a `Planificado`;
+  - `Cerrado` pasa a `Activo` (reabrir);
+  - `Descartado` vuelve a `Planificado`.
+- **Invariantes de roles:**
+  - el driver no escribe ni aprueba tests de aceptación;
+  - el autor y el aprobador de tests son entidades distintas;
+  - entre los aprobadores hay al menos una persona;
+  - el verificador no es el driver;
+  - Delegado activa el verificador.
+- Si dudas de un comando, usa `python3 baton/bin/baton.py <comando> --help`. Para comprobar reglas, `validar`.
 
 ## No hagas
 
