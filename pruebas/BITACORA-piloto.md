@@ -9,7 +9,7 @@ Proyecto: `gastos` · Guía: [GUIA-PILOTO.md](GUIA-PILOTO.md)
 | Fase | Sesión/modelo | Costo (/cost) | ¿Como lo pensé? | Fricción |
 |---|---|---|---|---|
 | 1 · Inicio del proyecto | A · Opus | (anotar /cost) | Sí en lo esencial: entendió antes de configurar, recomendó el stack después de la escala y detectó una contradicción en el mapa | Configuración en texto, resumen final pobre, leyó el código de baton.py |
-| 2 · Cambiar el mapa | A · Opus | | | |
+| 2 · Cambiar el mapa | A · Opus | (anotar /cost) | Sí: el mapa es iterable de verdad; cuidó que la visión y el mapa no se contradijeran y preguntó las ambigüedades | Candidatos propuestos y decididos en texto; motivo genérico al descartar; contaminación de memoria |
 | 3 · `registro` (Delegado) | A · subagente · B Sonnet · C Haiku | | | |
 | 4 · `saldos` (Pair) | A · subagente · B Sonnet | | | |
 | 5 · Iterar | A · Opus | | | |
@@ -25,6 +25,12 @@ Proyecto: `gastos` · Guía: [GUIA-PILOTO.md](GUIA-PILOTO.md)
 | D10 | 1 | `baton.py init --hook` rechaza su propio hook: lo reconoce buscando el texto `baton.py`, que el hook seguro para todas las ramas ya no contiene | Que se pueda reinstalar el hook | baton.py. **Corregido y probado en e2e.** La prueba encontró un segundo bug: `baton/bin/baton.py init` fallaba al intentar copiarse sobre sí mismo |
 | D11 | 1 | El verificador quedó `desactivado` con `entidad: null`. Cuando un módulo sea Delegado, el verificador se activa a la fuerza, y `baton.py` va a fallar | Asignar siempre una entidad al verificador | skill `baton-start` y baton.py. **Corregido**: la skill pide siempre una entidad, y `validar` avisa si falta. **En el piloto sigue en null:** hay que arreglarlo antes de la fase 3 |
 | — | 1 | El agente ofreció abrir un issue o PR del bug en el repositorio de la metodología, porque ve su remoto | — | entorno del piloto (el worktree comparte `.git`); no es un defecto de Baton |
+| D12 | 2 | Propuso los módulos candidatos en el chat y preguntó en texto "¿agrego X o Y?". `correccion` quedó sin decisión y sin rastro | Una pregunta interactiva de selección múltiple ("¿cuáles aceptas?"), y lo no elegido descartado explícitamente | skill `baton-module`, sección A |
+| D13 | 2 | Al descartar dos módulos, usó de motivo "zartaroth los descarta" sin preguntar la razón | Preguntar el motivo (con motivos probables como opciones) antes del sync | skill `baton-module`, sección A |
+| D14 | 2 | **Contaminación:** el agente del piloto leyó la memoria de Claude Code del proyecto Metologia (`feedback-diseno-conversado.md`). Claude Code guarda la memoria por repositorio, y el worktree comparte el repo de la metodología | Que el piloto no vea nada de la metodología | **entorno del piloto:** usar un repositorio independiente, no un worktree. Esto también resuelve el remoto |
+| D15 | 2 | Al dividir `liquidacion`, la conservó en vez de descartarla y crear dos nuevas. Es razonable, pero distinto de lo que dice la skill | Una regla que admita conservar el original cuando mantiene nombre y objetivo | skill `baton-module`, sección A |
+| + | 2 | **Comportamiento bueno que no estaba en la skill:** al cambiar el mapa, actualizó la visión (alcance y fuera de alcance) para que no se contradijeran, con su motivo | — | codificarlo en `baton-module` |
+
 
 ## Error sembrado
 

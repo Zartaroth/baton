@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Reinicia el piloto de Baton: lo deja como un proyecto recién creado y vuelve a enlazar las skills.
+# El piloto es un repositorio git independiente (rama piloto), no un worktree de la metodología.
 # Uso: bash pruebas/reiniciar-piloto.sh [carpeta-del-piloto] [--copiar]
 #   --copiar  copia las skills en vez de enlazarlas (si tu agente no sigue enlaces simbólicos)
 set -euo pipefail
@@ -16,6 +17,7 @@ done
 
 cd "$PILOTO"
 rama=$(git rev-parse --abbrev-ref HEAD)
+[ "$(git rev-parse --git-common-dir)" = ".git" ] || echo "aviso: $PILOTO parece un worktree. Claude Code le cargaría la memoria del repositorio principal; usa un repositorio independiente (ver la guía)." >&2
 [ "$rama" = piloto ] || { echo "error: $PILOTO está en la rama '$rama', no en 'piloto'. No toco nada." >&2; exit 1; }
 
 # respaldar lo generado por el intento anterior

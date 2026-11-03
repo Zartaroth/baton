@@ -49,12 +49,13 @@ Anota **quién lo detecta primero**: `baton-item`, el autor de tests, tú al apr
 
 ### Primera vez
 
-El piloto simula un proyecto **desde cero**. `piloto` es una rama huérfana: no tiene historial ni archivos de la metodología, solo `.gitignore`. Vive en un worktree aparte, y `main` (o tu rama de trabajo) sigue disponible para corregir skills.
+El piloto simula un proyecto **desde cero**, en un **repositorio git independiente** (rama `piloto`). Sin historial, sin archivos de la metodología y sin remoto: solo `.gitignore`.
+
+> **No uses un worktree del repositorio de la metodología.** Claude Code guarda la memoria y el contexto por repositorio, y un worktree comparte el de la metodología. En el intento 2, los agentes del piloto leían la memoria de la sesión que diseña Baton y veían su remoto (D14).
 
 ```bash
-cd ~/Proyectos/Metologia
-git worktree add --orphan -b piloto ../baton-piloto     # git 2.42+
-cd ../baton-piloto
+mkdir -p ~/Proyectos/baton-piloto && cd ~/Proyectos/baton-piloto
+git init -b piloto
 printf '.venv/\n__pycache__/\n.pytest_cache/\n' > .gitignore
 git add .gitignore && git commit -m "Inicio del proyecto"
 python3 -m venv .venv && .venv/bin/pip install pytest pyyaml    # pytest sin sudo
@@ -129,7 +130,7 @@ Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, 
   **Primero di "y que sonnet también apruebe tests".**
 - **Autonomía:** Checkpoint.
 - **Tests:** `slice_max.criterios` 2, con los comandos `.venv/bin/pytest` que propone.
-- **Herramienta externa:** ninguna. **Importar issues: no.** El remoto que ve es el de la metodología, porque el worktree comparte `.git`.
+- **Herramienta externa:** ninguna. No hay remoto, así que no debería ofrecer importar issues.
 - **Protección:** hook sí, CODEOWNERS no.
 - **Mapa de módulos:** acepta algo como `registro` (registrar y listar, prioridad 1) y `saldos` (calcular quién debe a quién, prioridad 2). Sin ítems semilla.
 
@@ -152,11 +153,12 @@ Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, 
 
 Estos cambios son a nivel de módulo; todavía no hay ítems.
 
-- [ ] Pregunta "¿qué módulos crees que faltan?". Debe proponerlos como **candidatos**. Acepta uno, por ejemplo `liquidacion` ("quién le paga a quién con el mínimo de transferencias"), y descarta los demás. No debe mover ninguno sin tu respuesta.
-- [ ] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo.
-- [ ] Di "divide `liquidacion` en `liquidacion` y `recordatorios`". Debe crear el nuevo y anotar la división.
-- [ ] Di "descarta `exportar` y `recordatorios`". Deben quedar en `Descartado`, y BACKLOG.md debe seguir mostrándolos en el mapa.
-- [ ] `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad.
+- [ ] Pregunta "¿qué módulos crees que faltan?". Debe proponerlos como **candidatos**. Acepta uno, por ejemplo `liquidacion` ("quién le paga a quién con el mínimo de transferencias"), y descarta los demás. No debe mover ninguno sin tu respuesta. ⚠️ *Intento 2: propuso 2 candidatos bien argumentados (`correccion` y `liquidacion`) y no movió nada sin respuesta. Al aceptarlo, `liquidacion` quedó con `origen: agente` y `propuesto_por`. Pero preguntó en texto en vez de con una pregunta interactiva, y `correccion` quedó sin decisión ni rastro (D12).*
+- [x] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo. ✅ *Intento 2: además actualizó la visión para que el mapa y la visión no se contradijeran, y advirtió que quizás era solo un ítem.*
+- [x] Di "divide `liquidacion` en `liquidacion` y `recordatorios`". Debe crear el nuevo y anotar la división. ✅ *Intento 2: detectó la ambigüedad y la preguntó con una pregunta interactiva. Anotó la división en el motivo. Conservó `liquidacion` en vez de descartarla y recrearla, lo que tiene sentido pero no es lo que dice la skill (D15).*
+- [x] Di "descarta `exportar` y `recordatorios`". Deben quedar en `Descartado`, y BACKLOG.md debe seguir mostrándolos en el mapa. ✅ *Intento 2: usó `baton.py estado` y revirtió la visión. ⚠️ Puso como motivo "zartaroth los descarta" sin preguntarte la razón, aunque luego lo advirtió (D13).*
+- [x] `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad. ✅ *Intento 2: "Rol: navigator · Paso: abrir el módulo · Sobre: registro".*
+- [ ] **Sin contaminación:** ningún agente lee archivos fuera del piloto. ❌ *Intento 2: el agente leyó la memoria de Claude Code de la sesión que diseña la metodología, porque el worktree comparte repositorio (D14).*
 
 ### Fase 3 · Módulo `registro` en Delegado (A → subagente → A → B → C → A)
 

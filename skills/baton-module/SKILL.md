@@ -29,11 +29,23 @@ El mapa es iterable: casi nunca se conocen todos los módulos al empezar.
 | Agregar | nuevo `baton/modules/<m>/module.md` con `estado: Planificado`, `prioridad` y `## Objetivo` |
 | Aceptar o descartar un candidato | `baton.py estado modulo:<m> Planificado` o `baton.py estado modulo:<m> Descartado` |
 | Repriorizar | edita `prioridad` en los `module.md` |
-| Dividir | crea los módulos nuevos, mueve los ítems (campo `modulo`) y descarta el original con una nota en `## Objetivo`: "dividido en X e Y" |
+| Dividir | Si el original **conserva su nombre y su objetivo**, se mantiene, y se crean solo los nuevos. Si no, crea todos los módulos resultantes y descarta el original. En los dos casos, mueve los ítems (campo `modulo`) y anota la división en el `## Objetivo` de los módulos involucrados ("separado de X", "dividido en X e Y") |
 | Fusionar | mueve los ítems al módulo que queda y descarta el otro con una nota |
 | Descartar | `baton.py estado modulo:<m> Descartado`. Sus ítems no hechos pasan a `Descartado` o a otro módulo, según decida el humano |
 
-Las propuestas del agente entran como `estado: Candidato`, `origen: agente`, `propuesto_por` y `## Por qué se propone`. Nunca las aceptes sin respuesta del humano. Al terminar, ejecuta `baton.py sync` **con el motivo de cada cambio**.
+**Proponer módulos** (por ejemplo, ante "¿qué falta?"):
+1. Explica cada propuesta en una línea, con su motivo.
+2. Pregunta con **una pregunta interactiva de selección múltiple**: "¿Cuáles agrego al mapa?", con una opción por módulo y la recomendada marcada.
+3. Lo **elegido** se crea en `Planificado` (`origen: agente`, `propuesto_por`, `## Por qué se propone`). Si el humano dice "para después", se crea en `Candidato`.
+4. Lo **no elegido** no se crea, y se menciona en el cierre como descartado.
+
+Nunca agregues una propuesta sin respuesta del humano.
+
+**Motivos:** cada cambio del mapa necesita un motivo de fondo, no "el humano lo pidió". Si el humano no lo dio, pregúntalo antes del sync, con motivos probables como opciones interactivas.
+
+**Visión coherente:** si el cambio mueve algo dentro o fuera del alcance (un módulo nuevo, uno descartado), actualiza `## Alcance inicial` y `## Fuera de alcance` de `baton/system/overview.md`, con el mismo motivo. El mapa y la visión nunca deben contradecirse.
+
+Al terminar, ejecuta `baton.py sync` **con el motivo de cada cambio** y muestra la tabla "Mapa de módulos" de `BACKLOG.md`.
 
 ## B. Abrir un módulo
 
