@@ -46,23 +46,31 @@ Anota **quién lo detecta primero**: refine, el autor, tú al aprobar, o el Driv
 
 ## 2. Preparación (una vez)
 
+El piloto simula un proyecto **desde cero**. `piloto` es una rama huérfana: no tiene historial ni archivos de la metodología, solo `.gitignore`. Vive en un worktree aparte, así `main` sigue disponible para corregir skills.
+
 ```bash
-# rama del piloto en una carpeta aparte (worktree): main sigue disponible para corregir skills
 cd ~/Proyectos/Metologia
-git worktree add ../baton-piloto piloto
+git worktree add --orphan -b piloto ../baton-piloto     # git 2.42+; si no, ver la nota
 cd ../baton-piloto
+printf '.venv/\n__pycache__/\n.pytest_cache/\n' > .gitignore
+git add .gitignore && git commit -m "Inicio del proyecto"
 
 # skills enlazadas a las de main: si corriges una skill en main, el piloto la usa al instante
 mkdir -p .claude/skills
 for s in ~/Proyectos/Metologia/skills/baton-*; do ln -s "$s" .claude/skills/; done
+echo ".claude/skills/" >> "$(git rev-parse --git-common-dir)/info/exclude"
 
-# pytest (CachyOS/Arch). Alternativa: python -m venv .venv && .venv/bin/pip install pytest pyyaml
-sudo pacman -S --needed python-pytest
+# pytest en un entorno virtual, sin sudo
+python3 -m venv .venv && .venv/bin/pip install pytest pyyaml
 ```
 
-Abre Claude Code en `../baton-piloto` y pregunta "¿qué skills de baton tienes?". Si no aparecen las 9, cambia los enlaces por copias: `cp -r ~/Proyectos/Metologia/skills/baton-* .claude/skills/`.
+> Con git anterior a 2.42, crea el worktree desde `main` y vacíalo: `git checkout --orphan piloto && git rm -rq --cached . && git clean -fdq -e .venv -e .claude`.
 
-**Si corriges `baton.py` en main:** vuelve a copiarlo al piloto con `python3 ~/Proyectos/Metologia/skills/baton-setup/assets/baton.py init --forzar`. Hazlo desde `../baton-piloto`.
+**Comprueba que Claude Code ve las skills:** en `../baton-piloto`, pregunta "¿qué skills de baton tienes?". Deben aparecer las 9. Si no aparecen, cambia los enlaces por copias: `cp -r ~/Proyectos/Metologia/skills/baton-* .claude/skills/`.
+
+**La bitácora vive en `main`** (`pruebas/BITACORA-piloto.md`), fuera del alcance de los agentes del piloto.
+
+**Si corriges `baton.py` en main:** desde `../baton-piloto`, ejecuta `python3 ~/Proyectos/Metologia/skills/baton-setup/assets/baton.py init --forzar`.
 
 ### Sesiones y modelos
 
@@ -104,7 +112,7 @@ Pide: "ejecuta baton-setup". Responde con:
   - autonomía Checkpoint;
   - wip 2;
   - `slice_max.criterios` 2;
-  - comandos `pytest tests/acceptance`, `pytest {archivo}`, `pytest tests/unit` y `pytest`.
+  - comandos `.venv/bin/pytest tests/acceptance`, `.venv/bin/pytest {archivo}`, `.venv/bin/pytest tests/unit` y `.venv/bin/pytest`.
 
 **Verifica:**
 
@@ -213,7 +221,7 @@ Pide: "baton-kickoff del módulo registro (US-001, US-002)" y después "baton-ki
 
 ## 5. Bitácora
 
-Crea `pruebas/BITACORA.md` en la rama `piloto` con estas dos tablas:
+Llena `pruebas/BITACORA-piloto.md` en `main`. Ya tiene estas tablas y las preguntas de cierre:
 
 ```markdown
 ## Fases
@@ -235,4 +243,4 @@ Crea `pruebas/BITACORA.md` en la rama `piloto` con estas dos tablas:
 6. ¿Qué estado, campo o paso no usaste nunca? Puede sobrar.
 7. ¿Qué te faltó más: `baton-verify`, `baton-review` o una skill de visión?
 
-**Correcciones:** se hacen en `main`. Las skills enlazadas las toma el piloto al instante, y `baton.py` se actualiza con `init --forzar`. Así `piloto` queda solo con el proyecto y la bitácora.
+**Correcciones:** se hacen en `main`. Las skills enlazadas las toma el piloto al instante, y `baton.py` se actualiza con `init --forzar`. Así `piloto` queda solo con el proyecto.
