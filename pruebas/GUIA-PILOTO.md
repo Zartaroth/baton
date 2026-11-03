@@ -8,7 +8,7 @@
 
 El proyecto es pequeño a propósito, para gastar pocos tokens. Lo que se prueba es el flujo, no el código.
 
-> **Intento 2 (Baton 0.4).** El intento 1 probó el flujo 0.3 y salieron 6 defectos (ver la bitácora). Esta versión prueba el flujo nuevo: entender el proyecto antes de configurarlo, la escala y el stack, el mapa de módulos iterable, el tipo de backlog y el router `baton`.
+> **Intento 3 (Baton 0.4).** El intento 1 probó el flujo 0.3. El intento 2 probó el flujo nuevo hasta la fase 2, y sus defectos se corrigieron (D7 a D15). Este intento parte desde cero, en un repositorio independiente.
 
 ---
 
@@ -136,29 +136,29 @@ Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, 
 
 **Verifica:**
 
-- [x] El router anunció `Rol · Paso` y lanzó `baton-start` porque no había configuración. ✅ *Intento 2: "Rol: humano + Navigator · Paso: iniciar el proyecto".*
-- [ ] *(Opcional, en otra sesión limpia)* "empecemos el proyecto", sin barra, también activa el router. ⏭️ *Intento 2: no se probó.*
-- [ ] Usó `baton.py detectar` y **no exploró el repositorio a mano** ni leyó la metodología. ⚠️ *Intento 2: usó `detectar` y no leyó la metodología, pero leyó el código de `baton.py` (6 llamadas) para entender los archivos protegidos, las invariantes y el hook (D9).*
-- [x] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y **esperó tu confirmación**. ✅ *Intento 2: 2 rondas, propuso una versión concreta del alcance y sacó 3 dudas reales (el centavo, decimales, transferencias).*
-- [ ] **Forma de preguntar:** las decisiones con opciones (escala, stack, tipo de backlog, autonomía, confirmar el resumen) llegaron como **preguntas interactivas**, con la recomendación primero. Las preguntas abiertas (qué es, para quién) llegaron en texto. ❌ *Intento 2: el stack, la invariante y la contradicción del módulo 2 fueron interactivas, pero la escala, la confirmación de la visión y **toda la configuración** llegaron en texto (D7).*
-- [x] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. `ADR-0001-stack.md` existe y tiene `## Revisar si`. ✅ *Intento 2: 3 opciones (stdlib, Click o Typer, script único) y 4 condiciones concretas para revisar.*
-- [x] Cada recomendación de configuración cita el contexto. Por ejemplo, "Checkpoint porque no hay datos sensibles". ✅ *Intento 2: también para kanban (una persona, sin plazos) y para no usar CODEOWNERS. ⚠️ Pero propuso el verificador desactivado **sin entidad**, y eso va a fallar cuando un módulo sea Delegado (D11).*
-- [x] El proyecto se llama `gastos`, no como la carpeta. ✅
-- [x] Cuando dijiste "que sonnet también apruebe tests", se negó y citó la invariante. ✅ *Intento 2: lo hizo con una pregunta interactiva que citaba la invariante 1.*
-- [x] Creó solo los módulos que aceptaste, en `Planificado`, con `## Objetivo`. ✅ *Intento 2: además detectó que "quién debe a quién" contradecía lo que la visión dejaba fuera de alcance, y lo preguntó.*
-- [x] `python3 baton/bin/baton.py validar` da `ok`, existe `.git/hooks/pre-commit`, y `HISTORY.md` registra la visión, el ADR, la configuración y los módulos, con su motivo. ✅ *Intento 2: sí. ⚠️ El agente encontró que `init --hook` rechaza su propio hook (D10).*
-- [ ] **Resumen final:** muestra el mapa de módulos y la configuración en tablas, y dice qué sigue. ❌ *Intento 2: cerró con un resumen en prosa, sin la tabla del backlog ni el detalle de la configuración (D8).*
+- [ ] El router anunció `Rol · Paso` y lanzó `baton-start` porque no había configuración.
+- [ ] *(Opcional, en otra sesión limpia)* "empecemos el proyecto", sin barra, también activa el router.
+- [ ] Usó `baton.py detectar` y **no exploró el repositorio a mano** ni leyó la metodología.
+- [ ] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y **esperó tu confirmación**.
+- [ ] **Forma de preguntar:** las decisiones con opciones (escala, stack, tipo de backlog, autonomía, confirmar el resumen) llegaron como **preguntas interactivas**, con la recomendación primero. Las preguntas abiertas (qué es, para quién) llegaron en texto.
+- [ ] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. `ADR-0001-stack.md` existe y tiene `## Revisar si`.
+- [ ] Cada recomendación de configuración cita el contexto. Por ejemplo, "Checkpoint porque no hay datos sensibles".
+- [ ] El proyecto se llama `gastos`, no como la carpeta.
+- [ ] Cuando dijiste "que sonnet también apruebe tests", se negó y citó la invariante.
+- [ ] Creó solo los módulos que aceptaste, en `Planificado`, con `## Objetivo`.
+- [ ] `python3 baton/bin/baton.py validar` da `ok`, existe `.git/hooks/pre-commit`, y `HISTORY.md` registra la visión, el ADR, la configuración y los módulos, con su motivo.
+- [ ] **Resumen final:** muestra el mapa de módulos y la configuración en tablas, y dice qué sigue.
 
 ### Fase 2 · Cambiar el mapa (sesión A, `/clear`, barata)
 
 Estos cambios son a nivel de módulo; todavía no hay ítems.
 
-- [ ] Pregunta "¿qué módulos crees que faltan?". Debe proponerlos como **candidatos**. Acepta uno, por ejemplo `liquidacion` ("quién le paga a quién con el mínimo de transferencias"), y descarta los demás. No debe mover ninguno sin tu respuesta. ⚠️ *Intento 2: propuso 2 candidatos bien argumentados (`correccion` y `liquidacion`) y no movió nada sin respuesta. Al aceptarlo, `liquidacion` quedó con `origen: agente` y `propuesto_por`. Pero preguntó en texto en vez de con una pregunta interactiva, y `correccion` quedó sin decisión ni rastro (D12).*
-- [x] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo. ✅ *Intento 2: además actualizó la visión para que el mapa y la visión no se contradijeran, y advirtió que quizás era solo un ítem.*
-- [x] Di "divide `liquidacion` en `liquidacion` y `recordatorios`". Debe crear el nuevo y anotar la división. ✅ *Intento 2: detectó la ambigüedad y la preguntó con una pregunta interactiva. Anotó la división en el motivo. Conservó `liquidacion` en vez de descartarla y recrearla, lo que tiene sentido pero no es lo que dice la skill (D15).*
-- [x] Di "descarta `exportar` y `recordatorios`". Deben quedar en `Descartado`, y BACKLOG.md debe seguir mostrándolos en el mapa. ✅ *Intento 2: usó `baton.py estado` y revirtió la visión. ⚠️ Puso como motivo "zartaroth los descarta" sin preguntarte la razón, aunque luego lo advirtió (D13).*
-- [x] `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad. ✅ *Intento 2: "Rol: navigator · Paso: abrir el módulo · Sobre: registro".*
-- [ ] **Sin contaminación:** ningún agente lee archivos fuera del piloto. ❌ *Intento 2: el agente leyó la memoria de Claude Code de la sesión que diseña la metodología, porque el worktree comparte repositorio (D14).*
+- [ ] Pregunta "¿qué módulos crees que faltan?". Debe proponerlos como **candidatos**. Acepta uno, por ejemplo `liquidacion` ("quién le paga a quién con el mínimo de transferencias"), y descarta los demás. No debe mover ninguno sin tu respuesta.
+- [ ] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad 9". Debe quedar en `Planificado`, con su motivo.
+- [ ] Di "divide `liquidacion` en `liquidacion` y `recordatorios`". Debe crear el nuevo y anotar la división.
+- [ ] Di "descarta `exportar` y `recordatorios`". Deben quedar en `Descartado`, y BACKLOG.md debe seguir mostrándolos en el mapa.
+- [ ] `/baton` (o `baton.py next --rol navigator`) propone abrir `registro`, el `Planificado` de mayor prioridad.
+- [ ] **Sin contaminación:** ningún agente lee archivos fuera del piloto.
 
 ### Fase 3 · Módulo `registro` en Delegado (A → subagente → A → B → C → A)
 
