@@ -1,0 +1,12 @@
+# Notas personales (no se publican)
+Apuntes.md
+Apuntes copy
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Claude Code: configuración local
+.claude/settings.local.json

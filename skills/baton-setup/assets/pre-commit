@@ -1,0 +1,5 @@
+#!/bin/sh
+# baton: protege los tests de aceptación congelados (FORMATOS.md §6.3).
+# Atrapa descuidos; la garantía fuerte es CODEOWNERS en el servidor.
+command -v python3 >/dev/null 2>&1 || { echo "baton: falta python3 para revisar acceptance.lock" >&2; exit 1; }
+exec python3 baton/bin/baton.py lock revisar --staged
