@@ -139,6 +139,7 @@ Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, 
 - [ ] *(Opcional, en otra sesión limpia)* "empecemos el proyecto", sin barra, también activa el router.
 - [ ] Usó `baton.py detectar` y **no exploró el repositorio a mano** ni leyó la metodología.
 - [ ] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y **esperó tu confirmación**.
+- [ ] **Forma de preguntar:** las decisiones con opciones (escala, stack, tipo de backlog, autonomía, confirmar el resumen) llegaron como **preguntas interactivas**, con la recomendación primero. Las preguntas abiertas (qué es, para quién) llegaron en texto.
 - [ ] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. `ADR-0001-stack.md` existe y tiene `## Revisar si`.
 - [ ] Cada recomendación de configuración cita el contexto. Por ejemplo, "Checkpoint porque no hay datos sensibles".
 - [ ] El proyecto se llama `gastos`, no como la carpeta.

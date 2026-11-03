@@ -17,6 +17,13 @@ description: Detalla justo a tiempo un ítem de la metodología Baton. En un sol
 
 No leas la documentación de la metodología: lo necesario está aquí y en `baton/templates/`.
 
+## Cómo preguntar
+
+- **Decisiones con opciones** (elegir entre alternativas, aceptar o descartar, mantener o cambiar, confirmar un resumen): usa la herramienta de preguntas interactivas de tu entorno, si la tiene (en Claude Code, `AskUserQuestion`). Pon tu recomendación como primera opción, marcada "(Recomendado)", con una línea de por qué. Agrupa hasta 4 preguntas por tanda.
+- **Preguntas abiertas** (qué es el proyecto, para quién, el motivo de un cambio): hazlas en texto, todas juntas en un solo mensaje. No las fuerces a opciones.
+- **Sin herramienta interactiva:** usa una lista numerada con las opciones y la recomendada marcada.
+- Si el humano responde algo distinto de las opciones, tómalo como una corrección y no como un error.
+
 ## 1. Detallar el ítem
 
 1. Lee el ítem, su `module.md`, la visión y los ADR relevantes.
@@ -70,7 +77,7 @@ Seguridad: … · Preguntas abiertas: ninguna
 ¿Apruebas, o ajusto algo?
 ```
 
-Ajusta hasta que el humano apruebe. Recién entonces escribe el ítem y el plan.
+Pide la confirmación con una pregunta interactiva ("Apruebo" o "Ajustar…"). Ajusta hasta que el humano apruebe, y recién entonces escribe el ítem y el plan.
 
 ## 4. Registrar y entregar
 

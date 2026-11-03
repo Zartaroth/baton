@@ -21,7 +21,7 @@ La recomendación se hace **después** de confirmar la visión: el stack correct
 
 ## Cómo presentarlo
 
-- **2 o 3 opciones** en una tabla (opción, a favor, en contra), y tu **recomendación** con el motivo en una línea.
+- **2 o 3 opciones** en una tabla (opción, a favor, en contra), y tu **recomendación** con el motivo en una línea. Pide la elección con una pregunta interactiva: la recomendada primero, y cada opción con su resumen.
 - Incluye lenguaje y framework, almacenamiento, framework de tests y cómo se ejecuta o despliega.
 - El humano decide. Escríbelo en `baton/system/adr/ADR-0001-stack.md`:
   - `## Contexto`: cita la escala y las restricciones de la visión;

@@ -17,7 +17,7 @@ description: Sincroniza el backlog de la metodología Baton. Detecta qué cambi�
 2. Si `validar` reporta errores, el sync se cancela. Muestra los errores y corrígelos (o pide al humano que decida) antes de seguir.
 3. **Motivos:**
    - Si hiciste el cambio en esta sesión, ya sabes el motivo: úsalo.
-   - Si no, sobre todo cuando son ediciones a mano del humano, **pregúntale**. Agrupa en una sola pregunta los cambios que parecen tener el mismo motivo.
+   - Si no, sobre todo cuando son ediciones a mano del humano, **pregúntale**. Agrupa en una sola pregunta los cambios que parecen tener el mismo motivo. El motivo es una respuesta abierta: pregúntalo en texto, salvo que puedas proponer motivos probables como opciones.
    - **Nunca inventes un motivo.**
 4. Ejecuta `python3 baton/bin/baton.py sync --autor <entidad> [--motivo "<común>"] [--motivo-de "<clave>=<motivo>" ...] [--ref <commit|solicitud|skill>]`. La clave puede ser la de la lista (`US-004:prioridad`) o el objeto completo (`US-004`).
 5. Muestra el resultado: cuántos cambios se registraron y, si cambió algo importante, una línea con el estado del backlog.

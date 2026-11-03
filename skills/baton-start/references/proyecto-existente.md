@@ -19,6 +19,8 @@ Lee solo esto, en este orden, y detente cuando tengas una imagen clara:
 
 ## Preguntas al humano (una ronda)
 
+Las preguntas 1 y 2 son abiertas, en texto. La 3 y la 4 son de opciones: hazlas con preguntas interactivas.
+
 1. ¿Qué se quiere lograr ahora con el proyecto: una funcionalidad nueva, una refactorización, estabilizarlo, migrarlo?
 2. ¿Qué no se debe tocar?
 3. ¿La escala y las restricciones cambian respecto de hoy? Las opciones de escala están en `proyecto-nuevo.md`, ronda 2.
@@ -44,5 +46,7 @@ Ahora quieres: <objetivo>. No se toca: <...>.
 No pude confirmar: <lista corta>.
 ¿Lo entendí bien, o corrijo, agrego o quito algo?
 ```
+
+Pide la confirmación con una pregunta interactiva: "Está bien" o "Corregir…".
 
 Los tests existentes **no se congelan**. El lock de Baton solo cubre los tests de aceptación nuevos, porque esos salen de criterios aprobados.

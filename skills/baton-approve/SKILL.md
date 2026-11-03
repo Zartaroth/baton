@@ -19,7 +19,7 @@ El agente **prepara la revisión y ejecuta los comandos**, pero **no aprueba**. 
    - ¿El rojo verificado del traspaso falla por la razón correcta?
    - ¿Falta algún caso de los criterios?
 3. Vuelve a ejecutar el archivo con `comandos.aceptacion_archivo` y confirma que el rojo coincide con el del traspaso.
-4. Pregunta a la persona: **¿apruebas o rechazas?**
+4. Pregunta a la persona: **¿apruebas o rechazas?** Si tu entorno tiene preguntas interactivas (en Claude Code, `AskUserQuestion`), úsalas con las opciones "Apruebo" y "Rechazo (te digo por qué)". La respuesta tiene que ser explícita: nunca la des por supuesta.
 
 ### Si aprueba
 

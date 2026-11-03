@@ -16,6 +16,13 @@ description: Inicia un proyecto con la metodología Baton. Detecta si el proyect
 
 **No leas la documentación de la metodología.** Todo lo que necesitas está en esta skill, en `references/` y en `assets/templates/`. Si algo falta, dilo en vez de buscarlo.
 
+## Cómo preguntar
+
+- **Decisiones con opciones** (elegir entre alternativas, aceptar o descartar, mantener o cambiar, confirmar un resumen): usa la herramienta de preguntas interactivas de tu entorno, si la tiene (en Claude Code, `AskUserQuestion`). Pon tu recomendación como primera opción, marcada "(Recomendado)", con una línea de por qué. Agrupa hasta 4 preguntas por tanda.
+- **Preguntas abiertas** (qué es el proyecto, para quién, el motivo de un cambio): hazlas en texto, todas juntas en un solo mensaje. No las fuerces a opciones.
+- **Sin herramienta interactiva:** usa una lista numerada con las opciones y la recomendada marcada.
+- Si el humano responde algo distinto de las opciones, tómalo como una corrección y no como un error.
+
 ## Orden y por qué
 
 **Entender → escala y stack → configurar → mapa de módulos.** Cada paso usa lo que se decidió en el anterior. Las recomendaciones de configuración salen del proyecto real, no de valores genéricos.
@@ -54,7 +61,7 @@ El resultado es `baton/system/adr/ADR-0001-stack.md` (plantilla `baton/templates
 
 ## 3. Configurar
 
-Haz las preguntas **por grupos**. Cada grupo va con una propuesta ya rellenada a partir de la visión, del stack y de `detectar`, y explica en una línea por qué la recomiendas. El humano responde "sí" o corrige.
+Haz las preguntas **por grupos**, con preguntas interactivas (son decisiones con opciones). Cada grupo va con una propuesta ya rellenada a partir de la visión, del stack y de `detectar`, y explica en una línea por qué la recomiendas. El humano responde "sí" o corrige.
 
 1. **Tipo de backlog:**
    - el **principal** define la plantilla de los ítems:

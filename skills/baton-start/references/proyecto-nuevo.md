@@ -5,6 +5,7 @@
 ## Cómo preguntar
 
 - Haz **2 rondas como máximo**, con varias preguntas por ronda, no una por una.
+- **La ronda 1 es abierta** (qué es, para quién, para qué): hazla en texto. **En la ronda 2**, la escala y las restricciones son de opciones: usa preguntas interactivas. El alcance va en texto.
 - Si el humano responde con poco detalle, **propón tú** una versión concreta y pide que la corrija. Corregir es más rápido que redactar.
 - Lo que siga sin respuesta va a `## Lo que no sabemos`. No bloquea empezar.
 
@@ -51,3 +52,5 @@ Escala: <escala>. Restricciones clave: <...>.
 No sé todavía: <lista corta>.
 ¿Está bien, o corrijo, agrego o quito algo?
 ```
+
+Pide la confirmación con una pregunta interactiva: "Está bien" o "Corregir…".

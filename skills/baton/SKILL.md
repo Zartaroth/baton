@@ -33,7 +33,7 @@ description: 'Punto de entrada único de la metodología Baton (comando /baton).
 
 ## Decidir un escalamiento (Navigator)
 
-1. Presenta al humano la solicitud abierta (qué pasa, evidencia, propuesta), con tu recomendación.
+1. Presenta al humano la solicitud abierta (qué pasa, evidencia, propuesta). Pide la decisión con una pregunta interactiva, si tu entorno la tiene: las opciones son las alternativas, con tu recomendación primero.
 2. Escribe la decisión en `## Decisión`, junto con `decidida_por` y `decidida`.
 3. Aplícala:
    - **Aprobada, de tipo `test` o `criterio`:** ejecuta `estado <ítem>-R<n> Aprobada` y ajusta el criterio en el ítem (retíralo con `~~`, no lo borres). Luego `estado <ítem> Listo` y un traspaso para `autor_tests`.

@@ -11,6 +11,13 @@ description: Maneja los módulos de la metodología Baton. Edita el mapa de mód
 
 **Plantillas:** `baton/templates/module.md` y `baton/templates/item-<tipo>.md`. No leas la documentación de la metodología: lo necesario está aquí.
 
+## Cómo preguntar
+
+- **Decisiones con opciones** (elegir entre alternativas, aceptar o descartar, mantener o cambiar, confirmar un resumen): usa la herramienta de preguntas interactivas de tu entorno, si la tiene (en Claude Code, `AskUserQuestion`). Pon tu recomendación como primera opción, marcada "(Recomendado)", con una línea de por qué. Agrupa hasta 4 preguntas por tanda.
+- **Preguntas abiertas** (qué es el proyecto, para quién, el motivo de un cambio): hazlas en texto, todas juntas en un solo mensaje. No las fuerces a opciones.
+- **Sin herramienta interactiva:** usa una lista numerada con las opciones y la recomendada marcada.
+- Si el humano responde algo distinto de las opciones, tómalo como una corrección y no como un error.
+
 Pregunta qué quiere hacer el humano, o dedúcelo de `python3 baton/bin/baton.py next --rol navigator`:
 
 ## A. Cambiar el mapa de módulos
