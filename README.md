@@ -24,8 +24,10 @@ Baton evoluciona SDD (Spec-Driven Development) y resuelve cuatro de sus problema
 ## Cómo funciona
 
 ```
-refine → plan → tests en rojo verificado → aprobación humana y congelamiento
-       → Driver con TDD, slice por slice → verificación → revisión según autonomía
+entender el proyecto → escala y stack → configurar → mapa de módulos      (una vez)
+abrir un módulo: entenderlo → configurarlo → definir sus ítems           (por módulo)
+detallar un ítem → tests en rojo verificado → aprobación humana y congelamiento
+                 → Driver con TDD, slice por slice → verificación → revisión según autonomía
 ```
 
 - **Roles:**
@@ -46,8 +48,8 @@ refine → plan → tests en rojo verificado → aprobación humana y congelamie
 
 1. **Requisitos:** git, Python 3.10+ y PyYAML (`pip install pyyaml`).
 2. Copia las carpetas `skills/baton-*` a la carpeta de skills de tu agente (en Claude Code, `.claude/skills/`).
-3. En tu repositorio, pide ejecutar **`baton-setup`**.
-4. Desde ahí, **`baton-next`** dice qué le toca a cada rol.
+3. En tu repositorio di **"continúa"**: el router `baton` lanza `baton-start`. Este detecta si el proyecto es nuevo o existente, entiende qué se va a construir, recomienda el stack según la escala, configura y arma el mapa de módulos.
+4. Desde ahí, **"continúa"** sigue diciendo qué rol tiene el turno y qué paso toca.
 
 ## Contenido
 
@@ -60,7 +62,7 @@ refine → plan → tests en rojo verificado → aprobación humana y congelamie
 
 ## Estado
 
-Versión 0.3, experimental. El núcleo está escrito y probado con la prueba automática. Falta probarlo con un proyecto real ([guía del piloto](pruebas/GUIA-PILOTO.md)) y escribir `baton-verify`, `baton-review` y los adaptadores para Jira, Trello y GitHub Issues.
+Versión 0.4, experimental. El núcleo está escrito y probado con la prueba automática. Falta probarlo con un proyecto real ([guía del piloto](pruebas/GUIA-PILOTO.md)) y escribir `baton-verify`, `baton-review` y los adaptadores para Jira, Trello y GitHub Issues.
 
 ## Contribuir
 

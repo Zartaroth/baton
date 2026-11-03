@@ -24,6 +24,22 @@ jobs:
       - name: Instalar PyYAML
         run: pip install pyyaml
       - name: Compilar baton.py
-        run: python -m py_compile skills/baton-setup/assets/baton.py
+        run: python -m py_compile skills/baton-start/assets/baton.py
       - name: Prueba de punta a punta
         run: bash pruebas/e2e.sh
+      - name: Validar el frontmatter de las skills
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys, yaml
+          errores = 0
+          for f in sorted(pathlib.Path("skills").glob("*/SKILL.md")):
+              m = re.match(r"---\n(.*?)\n---", f.read_text(encoding="utf-8"), re.S)
+              try:
+                  fm = yaml.safe_load(m.group(1)) if m else None
+                  assert fm and fm.get("name") == f.parent.name, "name debe ser igual a la carpeta"
+                  assert 0 < len(fm.get("description", "")) <= 1024, "description vacía o de más de 1024 caracteres"
+                  print(f"ok {f}")
+              except Exception as e:
+                  errores += 1; print(f"ERROR {f}: {e}")
+          sys.exit(1 if errores else 0)
+          PY

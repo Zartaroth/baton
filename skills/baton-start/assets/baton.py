@@ -63,6 +63,22 @@ TRANSICIONES = {
     "Descartado": set(),
 }
 
+# Módulos: el mapa de módulos es iterable (se agregan, dividen o descartan en cualquier momento).
+ESTADOS_MODULO = ["Candidato", "Planificado", "Activo", "Cerrado", "Descartado"]
+TRANSICIONES_MODULO = {
+    "Candidato": {"Planificado", "Descartado"},
+    "Planificado": {"Activo", "Descartado"},
+    "Activo": {"Cerrado", "Planificado"},
+    "Cerrado": {"Activo"},
+    "Descartado": {"Planificado"},
+}
+
+# Tipos de ítem. El backlog tiene un tipo principal y tipos auxiliares (config.md: backlog).
+TIPOS_PRINCIPALES = {"historia", "requerimiento", "ticket"}
+# Sección del cuerpo que explica para qué existe el ítem (parte de la Definition of Ready).
+PROPOSITO = {"historia": "Valor", "requerimiento": "Requerimiento", "ticket": "Descripción",
+             "bug": "Comportamiento esperado", "tecnico": "Motivo"}
+
 # Claves que cada nivel puede sobrescribir (FORMATOS.md, sección 3).
 CLAVES_MODULO = {"roles.navigator", "roles.autor_tests", "roles.aprobador_tests", "roles.driver",
                  "roles.verificador", "roles.verificador.activo", "autonomia",
@@ -185,7 +201,7 @@ class Proyecto:
         self.flow = self.root / "baton"
         cfg_path = self.flow / "config.md"
         if not cfg_path.exists():
-            raise BatonError("no existe baton/config.md: ejecuta primero el setup")
+            raise BatonError("no existe baton/config.md: ejecuta primero baton-start")
         self.config, _ = leer_md(cfg_path)
         self.modulos: dict[str, dict] = {}
         for p in sorted(self.flow.glob("modules/*/module.md")):
@@ -204,6 +220,18 @@ class Proyecto:
             fm, body = leer_md(p)
             self.reportes[f"{fm.get('item')}-{fm.get('slice')}"] = {"fm": fm, "body": body, "path": p}
         self.lock = leer_lock(self.flow / "acceptance.lock")
+        # visión y decisiones: también se sincronizan (cambian poco, pero cada cambio tiene motivo)
+        self.vision = None
+        vp = self.flow / "system" / "overview.md"
+        if vp.exists():
+            texto = vp.read_text(encoding="utf-8")
+            fm, body = leer_md(vp) if FM_RE.match(texto) else ({}, texto)
+            self.vision = {"fm": fm, "body": body, "path": vp}
+        self.adrs = {}
+        for p in sorted(self.flow.glob("system/adr/ADR-*.md")):
+            texto = p.read_text(encoding="utf-8")
+            fm, body = leer_md(p) if FM_RE.match(texto) else ({}, texto)
+            self.adrs[fm.get("id") or "-".join(p.stem.split("-")[:2])] = {"fm": fm, "body": body, "path": p}
 
     def _cargar(self, patron, clave):
         res = {}
@@ -424,10 +452,25 @@ def validar(pr: Proyecto) -> tuple[list[str], list[str]]:
     errores += [f"config.md: {e}" for e in ef["errores"]]
     revisar_roles(roles, "config.md")
 
+    tipos = cfg.get("tipos") or {}
+    backlog = cfg.get("backlog") or {}
+    principal = backlog.get("principal")
+    auxiliares = list(backlog.get("auxiliares") or [])
+    if principal not in TIPOS_PRINCIPALES:
+        errores.append("config.md: backlog.principal debe ser historia, requerimiento o ticket")
+    for t in [principal, *auxiliares]:
+        if t and t not in tipos:
+            errores.append(f"config.md: el tipo '{t}' de backlog no tiene prefijo en 'tipos'")
+    tipos_permitidos = {t for t in [principal, *auxiliares] if t}
+
     for m, mod in pr.modulos.items():
         fm = mod["fm"]
-        if fm.get("estado") not in ("Planificado", "Activo", "Cerrado"):
-            errores.append(f"módulo {m}: estado no válido")
+        if fm.get("estado") not in ESTADOS_MODULO:
+            errores.append(f"módulo {m}: estado no válido ({', '.join(ESTADOS_MODULO)})")
+        if mod["path"].parent.name != m:
+            errores.append(f"módulo {m}: la carpeta debe llamarse modules/{m}/")
+        if fm.get("origen") == "agente" and not fm.get("propuesto_por"):
+            avisos.append(f"módulo {m}: un módulo propuesto por un agente debería tener propuesto_por")
         for clave, ov in (fm.get("config") or {}).items():
             if isinstance(ov, dict) and not ov.get("desde"):
                 errores.append(f"módulo {m}: '{clave}' necesita 'desde'")
@@ -435,20 +478,18 @@ def validar(pr: Proyecto) -> tuple[list[str], list[str]]:
         errores += [f"módulo {m}: {e}" for e in ef["errores"]]
         revisar_roles({r: v for r, v in ef["roles"].items()}, f"módulo {m}")
 
-    prefijos = set((cfg.get("tipos") or {}).values())
     for iid, it in pr.items.items():
         fm, donde = it["fm"], f"ítem {iid}"
         if fm.get("formato") != FORMATO:
             errores.append(f"{donde}: formato debe ser {FORMATO}")
         if it["path"].stem != iid:
             errores.append(f"{donde}: el archivo debe llamarse {iid}.md")
-        tipos = cfg.get("tipos") or {}
         if fm.get("tipo") not in tipos:
             errores.append(f"{donde}: tipo '{fm.get('tipo')}' no está en config.md")
         elif not str(iid).startswith(tipos[fm["tipo"]] + "-"):
             errores.append(f"{donde}: el id debe empezar con {tipos[fm['tipo']]}-")
-        if prefijos and str(iid).split("-")[0] not in prefijos:
-            pass
+        elif tipos_permitidos and fm["tipo"] not in tipos_permitidos:
+            errores.append(f"{donde}: el tipo '{fm['tipo']}' no está en backlog.principal ni en backlog.auxiliares")
         est = fm.get("estado")
         if est not in ESTADOS:
             errores.append(f"{donde}: estado '{est}' no válido")
@@ -461,6 +502,8 @@ def validar(pr: Proyecto) -> tuple[list[str], list[str]]:
         if est in POST_DOR:
             if not m:
                 errores.append(f"{donde}: un ítem en {est} necesita módulo")
+            elif m in pr.modulos and pr.modulos[m]["fm"].get("estado") not in ("Activo", "Cerrado"):
+                errores.append(f"{donde}: está en {est} pero su módulo {m} no está Activo (ábrelo con baton-module)")
             errores += [f"{donde}: {e}" for e in faltas_dor(pr, iid)]
         if m in pr.modulos:
             ef = efectiva(pr, item_id=iid)
@@ -507,8 +550,9 @@ def faltas_dor(pr: Proyecto, iid: str) -> list[str]:
     it = pr.items[iid]
     sec = secciones(it["body"])
     faltas = []
-    if vacio(sec.get("Valor", "")):
-        faltas.append("Definition of Ready: falta '## Valor'")
+    proposito = PROPOSITO.get(it["fm"].get("tipo"), "Descripción")
+    if vacio(sec.get(proposito, "")):
+        faltas.append(f"Definition of Ready: falta '## {proposito}'")
     vigentes = {k: v for k, v in it["ac"].items() if not v["retirado"]}
     if not vigentes:
         faltas.append("Definition of Ready: no hay criterios vigentes")
@@ -576,9 +620,13 @@ def tests_congelados(pr: Proyecto, iid: str) -> tuple[int, int]:
 
 
 def turno_de(pr: Proyecto, iid: str) -> str:
-    est = pr.items[iid]["fm"].get("estado")
+    fm = pr.items[iid]["fm"]
+    est = fm.get("estado")
     if est == "EnRevision":
         return "humano"
+    m = fm.get("modulo")
+    if est in ("Pendiente", "Candidato") and (not m or pr.modulos.get(m, {}).get("fm", {}).get("estado") != "Activo"):
+        return "–"  # espera a que su módulo se abra (o a tener módulo): lo indica tareas_de_modulos
     return TURNO.get(est, "–")
 
 
@@ -591,7 +639,25 @@ def siguiente_slice(pr: Proyecto, iid: str) -> str | None:
 
 def cambiar_estado(pr: Proyecto, objetivo: str, nuevo: str, forzar=False) -> str:
     m = re.fullmatch(r"(.+)-(S\d+)", objetivo)
-    if m and objetivo not in pr.items:
+    if objetivo.startswith("modulo:"):
+        nombre = objetivo.split(":", 1)[1]
+        mod = pr.modulos.get(nombre)
+        if not mod:
+            raise BatonError(f"no existe el módulo {nombre}")
+        if nuevo not in ESTADOS_MODULO:
+            raise BatonError(f"estado de módulo no válido: {nuevo} ({', '.join(ESTADOS_MODULO)})")
+        path, previo = mod["path"], mod["fm"].get("estado")
+        if not forzar and nuevo not in TRANSICIONES_MODULO.get(previo, set()):
+            raise BatonError(f"transición no permitida: {previo} → {nuevo} (usa --forzar si el humano lo decidió)")
+        if nuevo == "Cerrado":
+            abiertos = [i for i, it in pr.items.items() if it["fm"].get("modulo") == nombre
+                        and it["fm"].get("estado") not in ("Hecho", "Descartado", "Candidato", "Pendiente")]
+            if abiertos and not forzar:
+                raise BatonError(f"el módulo tiene ítems en desarrollo: {', '.join(abiertos)}")
+            _set_campo(path, {"cierre": date.today().isoformat()})
+        if nuevo == "Activo" and previo == "Planificado" and mod["fm"].get("inicio") in (None, "null"):
+            _set_campo(path, {"inicio": date.today().isoformat()})
+    elif m and objetivo not in pr.items:
         rep = pr.reportes.get(objetivo)
         if not rep:
             raise BatonError(f"no existe el reporte {objetivo}")
@@ -611,6 +677,9 @@ def cambiar_estado(pr: Proyecto, objetivo: str, nuevo: str, forzar=False) -> str
         if not forzar and nuevo not in TRANSICIONES.get(previo, set()):
             raise BatonError(f"transición no permitida: {previo} → {nuevo} (usa --forzar si el humano lo decidió)")
         if nuevo in POST_DOR and previo in ("Pendiente", "Candidato"):
+            mod = pr.items[objetivo]["fm"].get("modulo")
+            if not forzar and (not mod or pr.modulos.get(mod, {}).get("fm", {}).get("estado") != "Activo"):
+                raise BatonError(f"{objetivo} necesita un módulo Activo para pasar a {nuevo}; abre el módulo con baton-module")
             faltas = faltas_dor(pr, objetivo)
             if faltas:
                 raise BatonError("; ".join(faltas))
@@ -827,6 +896,11 @@ def foto(pr: Proyecto) -> dict:
         res[pr.rel(r["path"])] = {"tipo": "reporte", "objeto": rid,
                                   "fm": {"estado": r["fm"].get("estado"), "intento": r["fm"].get("intento")}}
     res["baton/acceptance.lock"] = {"tipo": "lock", "objeto": "lock", "lineas": pr.lock}
+    if pr.vision:
+        res[pr.rel(pr.vision["path"])] = {"tipo": "vision", "objeto": "vision", "fm": pr.vision["fm"],
+                                          "sec": sec_hash(pr.vision["body"])}
+    for aid, adr in pr.adrs.items():
+        res[pr.rel(adr["path"])] = {"tipo": "adr", "objeto": aid, "fm": adr["fm"], "sec": sec_hash(adr["body"])}
     return res
 
 
@@ -911,15 +985,37 @@ def generar_backlog(pr: Proyecto) -> str:
     def orden(iid):
         return (pr.items[iid]["fm"].get("prioridad") or 999, iid)
 
+    def orden_mod(m):
+        fm = pr.modulos[m]["fm"]
+        return (ESTADOS_MODULO.index(fm.get("estado")) if fm.get("estado") in ESTADOS_MODULO else 9,
+                fm.get("prioridad") or 999, m)
+
+    # mapa de módulos: la columna vertebral del backlog; se edita en cualquier momento
+    lineas += ["## Mapa de módulos", "", "| Módulo | Estado | Prioridad | Autonomía | Ítems hechos | Objetivo |",
+               "|---|---|---|---|---|---|"]
+    orden_estado = {"Activo": 0, "Planificado": 1, "Candidato": 2, "Cerrado": 3, "Descartado": 4}
+    for m in sorted(pr.modulos, key=lambda x: (orden_estado.get(pr.modulos[x]["fm"].get("estado"), 9),
+                                                 pr.modulos[x]["fm"].get("prioridad") or 999, x)):
+        fm = pr.modulos[m]["fm"]
+        ef = efectiva(pr, modulo=m)
+        aut = ef["autonomia"]["valor"] + (" ↓" if ef["autonomia"]["bajada"] else "")
+        suyos = [i for i in pr.items if pr.items[i]["fm"].get("modulo") == m
+                 and pr.items[i]["fm"].get("estado") not in ("Candidato", "Descartado")]
+        hechos = sum(1 for i in suyos if pr.items[i]["fm"].get("estado") == "Hecho")
+        objetivo = secciones(pr.modulos[m]["body"]).get("Objetivo", "")
+        lineas.append(f"| {m} | {fm.get('estado')} | {fm.get('prioridad', '–')} | {aut} | "
+                      f"{f'{hechos}/{len(suyos)}' if suyos else '–'} | {celda(corto(objetivo))} |")
+    lineas.append("")
+
     activos = [i for i in pr.items if pr.items[i]["fm"].get("estado") not in ("Candidato", "Hecho", "Descartado")]
     grupos: dict[str | None, list[str]] = {}
     for iid in activos:
         grupos.setdefault(pr.items[iid]["fm"].get("modulo"), []).append(iid)
-    for m in sorted(grupos, key=lambda x: (x is None, x or "")):
+    for m in sorted(grupos, key=lambda x: (x is None, orden_mod(x) if x in pr.modulos else (9, 999, x or ""))):
         if m and m in pr.modulos:
             ef = efectiva(pr, modulo=m)
             aut = ef["autonomia"]["valor"] + (" ↓" if ef["autonomia"]["bajada"] else "")
-            lineas.append(f"## {m} · {aut}")
+            lineas.append(f"## {m} · {pr.modulos[m]['fm'].get('estado')} · {aut}")
         else:
             lineas.append("## Sin módulo")
         lineas += ["", "| ID | Título | Estado | Turno | Prioridad | Autonomía | Slices | Tests |",
@@ -939,6 +1035,10 @@ def generar_backlog(pr: Proyecto) -> str:
         lineas.append("")
     cand = sorted((i for i in pr.items if pr.items[i]["fm"].get("estado") == "Candidato"), key=orden)
     lineas += ["## Candidatos", "", "| ID | Título | Propuesto por | Por qué |", "|---|---|---|---|"]
+    for m in sorted(m for m in pr.modulos if pr.modulos[m]["fm"].get("estado") == "Candidato"):
+        fm = pr.modulos[m]
+        porque = secciones(fm["body"]).get("Por qué se propone", "")
+        lineas.append(f"| modulo:{m} | {celda(fm['fm'].get('titulo', m))} | {fm['fm'].get('propuesto_por', '–')} | {celda(corto(porque))} |")
     for iid in cand:
         it = pr.items[iid]
         porque = secciones(it["body"]).get("Por qué se propone", "")
@@ -996,6 +1096,31 @@ def sync(pr: Proyecto, autor: str, general: str | None, especificos: dict, ref: 
 
 # ---------------------------------------------------------------- next
 
+def tareas_de_modulos(pr: Proyecto) -> list[str]:
+    """Trabajo del Navigator sobre el mapa de módulos (va antes que los ítems)."""
+    filas = []
+    abiertos = lambda m: [i for i, it in pr.items.items() if it["fm"].get("modulo") == m
+                          and it["fm"].get("estado") not in ("Hecho", "Descartado", "Candidato")]
+    for m in sorted(pr.modulos):
+        est = pr.modulos[m]["fm"].get("estado")
+        if est == "Candidato":
+            filas.append(f"  modulo:{m} · Candidato · aceptar o descartar (baton-module)")
+        if est == "Activo" and not abiertos(m) and any(it["fm"].get("modulo") == m for it in pr.items.values()):
+            filas.append(f"  modulo:{m} · Activo · sin ítems abiertos: revisar y cerrar, o agregar ítems (baton-module)")
+    activos_con_trabajo = [m for m in pr.modulos if pr.modulos[m]["fm"].get("estado") == "Activo" and abiertos(m)]
+    planificados = sorted((m for m in pr.modulos if pr.modulos[m]["fm"].get("estado") == "Planificado"),
+                          key=lambda m: (pr.modulos[m]["fm"].get("prioridad") or 999, m))
+    if not activos_con_trabajo and planificados:
+        filas.append(f"  modulo:{planificados[0]} · Planificado · siguiente módulo por prioridad: abrir (baton-module)")
+    if not pr.modulos:
+        filas.append("  mapa de módulos vacío: definirlo (baton-start o baton-module)")
+    sueltos = [i for i, it in pr.items.items() if not it["fm"].get("modulo")
+               and it["fm"].get("estado") in ("Pendiente", "Candidato")]
+    if sueltos:
+        filas.append(f"  {', '.join(sueltos)} · sin módulo: asignar a un módulo (baton-module)")
+    return filas
+
+
 def next_(pr: Proyecto, rol: str | None, entidad: str | None) -> list[str]:
     salida = []
     en_curso = sum(1 for it in pr.items.values() if it["fm"].get("estado") in WIP_ESTADOS)
@@ -1006,7 +1131,7 @@ def next_(pr: Proyecto, rol: str | None, entidad: str | None) -> list[str]:
             pendientes.setdefault(t["fm"].get("item"), []).append(t)
     roles = [rol] if rol else ROLES + ["humano"]
     for r in roles:
-        filas = []
+        filas = tareas_de_modulos(pr) if r == "navigator" else []
         for iid in sorted(pr.items, key=lambda i: (pr.items[i]["fm"].get("prioridad") or 999, i)):
             if turno_de(pr, iid) != r and not (r == "navigator" and turno_de(pr, iid) == "humano" and rol):
                 continue
@@ -1193,6 +1318,91 @@ def lock_revisar(pr: Proyecto, staged: bool, base_ref: str | None) -> list[str]:
 
 # ---------------------------------------------------------------- init
 
+IGNORAR_DIRS = {".git", ".venv", "venv", "env", "node_modules", ".claude", "baton", "__pycache__", ".pytest_cache",
+                "dist", "build", "target", ".idea", ".vscode", ".mypy_cache", ".tox", ".next", "coverage", "vendor"}
+EXT_LENGUAJE = {".py": "Python", ".js": "JavaScript", ".jsx": "JavaScript", ".ts": "TypeScript", ".tsx": "TypeScript",
+                ".go": "Go", ".rs": "Rust", ".java": "Java", ".kt": "Kotlin", ".cs": "C#", ".rb": "Ruby",
+                ".php": "PHP", ".swift": "Swift", ".c": "C", ".cpp": "C++", ".dart": "Dart", ".vue": "Vue",
+                ".svelte": "Svelte", ".ex": "Elixir", ".scala": "Scala"}
+MANIFIESTOS = ["package.json", "pyproject.toml", "requirements.txt", "setup.py", "Pipfile", "go.mod", "Cargo.toml",
+               "pom.xml", "build.gradle", "build.gradle.kts", "composer.json", "Gemfile", "pubspec.yaml",
+               "Dockerfile", "docker-compose.yml", "compose.yaml"]
+CONFIG_RUNNER = ["pytest.ini", "pyproject.toml", "setup.cfg", "tox.ini", "conftest.py", "tests/conftest.py",
+                 "jest.config.js", "jest.config.ts", "vitest.config.ts", "vitest.config.js",
+                 "playwright.config.ts", ".mocharc.json", "phpunit.xml"]
+
+
+def detectar(root: Path) -> dict:
+    """Lo que se puede saber del repositorio sin gastar tokens: ¿nuevo o existente?, stack, tests."""
+    fuentes, lenguajes, test_files, todos = [], {}, 0, 0
+    dirs_tests = set()
+    for p in root.rglob("*"):
+        if any(parte in IGNORAR_DIRS for parte in p.relative_to(root).parts):
+            continue
+        if p.is_dir():
+            if p.name in ("test", "tests", "__tests__", "spec"):
+                dirs_tests.add(p.relative_to(root).as_posix())
+            continue
+        leng = EXT_LENGUAJE.get(p.suffix)
+        if not leng:
+            continue
+        fuentes.append(p)
+        lenguajes[leng] = lenguajes.get(leng, 0) + 1
+        nombre = p.name.lower()
+        if nombre.startswith("test_") or "_test." in nombre or ".test." in nombre or ".spec." in nombre:
+            test_files += 1
+        if len(fuentes) <= 2000 and p.stat().st_size < 500_000:
+            todos += len(re.findall(r"\b(TODO|FIXME)\b", p.read_text(encoding="utf-8", errors="ignore")))
+    manifiestos = [m for m in MANIFIESTOS if (root / m).exists()] + [p.name for p in root.glob("*.csproj")]
+    leer = lambda n: (root / n).read_text(encoding="utf-8", errors="ignore") if (root / n).is_file() else ""
+
+    # framework de tests y comandos sugeridos
+    comandos, framework = None, None
+    py_dep = "pytest" in leer("pyproject.toml") + leer("requirements.txt") + leer("requirements-dev.txt")
+    venv_pytest = (root / ".venv" / "bin" / "pytest").exists()
+    if venv_pytest or py_dep or (lenguajes.get("Python") and shutil.which("pytest")):
+        framework, pre = "pytest", (".venv/bin/" if venv_pytest else "")
+        comandos = {"aceptacion": f"{pre}pytest tests/acceptance", "aceptacion_archivo": f"{pre}pytest {{archivo}}",
+                    "unitarios": f"{pre}pytest tests/unit", "todos": f"{pre}pytest"}
+    elif "package.json" in manifiestos:
+        pkg = leer("package.json")
+        runner = "vitest" if "vitest" in pkg else "jest" if "jest" in pkg else None
+        if runner:
+            framework = runner
+            run = "vitest run" if runner == "vitest" else "jest"
+            comandos = {"aceptacion": f"npx {run} tests/acceptance", "aceptacion_archivo": f"npx {run} {{archivo}}",
+                        "unitarios": f"npx {run} tests/unit", "todos": "npm test"}
+    elif "go.mod" in manifiestos:
+        framework = "go test"
+        comandos = {"aceptacion": "go test ./tests/acceptance/...", "aceptacion_archivo": "go test {archivo}",
+                    "unitarios": "go test ./...", "todos": "go test ./..."}
+    elif "Cargo.toml" in manifiestos:
+        framework = "cargo test"
+        comandos = {"aceptacion": "cargo test --test '*'", "aceptacion_archivo": "cargo test --test {archivo}",
+                    "unitarios": "cargo test --lib", "todos": "cargo test"}
+
+    remoto = git(root, "remote", "get-url", "origin", check=False).strip()
+    servicio = "github" if "github.com" in remoto else "gitlab" if "gitlab" in remoto else ("otro" if remoto else None)
+    commits = git(root, "rev-list", "--count", "HEAD", check=False).strip()
+    readme = next((p.name for p in root.glob("README*") if p.is_file()), None)
+    return {
+        "inicio": "existente" if fuentes else "nuevo",
+        "archivos_fuente": len(fuentes),
+        "lenguajes": dict(sorted(lenguajes.items(), key=lambda x: -x[1])),
+        "manifiestos": manifiestos,
+        "readme": readme,
+        "commits": int(commits) if commits.isdigit() else 0,
+        "tests_existentes": {"archivos": test_files, "carpetas": sorted(dirs_tests)},
+        "framework_tests": framework,
+        "comandos_sugeridos": comandos,
+        "protegidos_sugeridos": [c for c in CONFIG_RUNNER if (root / c).is_file()],
+        "remoto": {"servicio": servicio, "url": remoto or None,
+                   "issues_importables": servicio == "github" and shutil.which("gh") is not None},
+        "todos_en_codigo": todos,
+        "baton_instalado": (root / "baton" / "config.md").exists(),
+    }
+
+
 def init(destino: Path, hook: bool, codeowners: str | None, forzar: bool) -> list[str]:
     origen = Path(__file__).resolve().parent
     hechos = []
@@ -1212,12 +1422,10 @@ def init(destino: Path, hook: bool, codeowners: str | None, forzar: bool) -> lis
     shutil.copy2(hook_src, flow / "hooks" / "pre-commit")
     (flow / "hooks" / "pre-commit").chmod(0o755)
     hechos.append("baton/hooks/pre-commit")
-    for nombre, contenido in [("acceptance.lock", LOCK_CABECERA),
-                              ("system/overview.md", "# Mapa del sistema\n\n## Arquitectura\n\n## Contratos\n\n## Decisiones\nVer adr/.\n")]:
-        p = flow / nombre
-        if not p.exists():
-            p.write_text(contenido, encoding="utf-8")
-            hechos.append(f"baton/{nombre}")
+    lock = flow / "acceptance.lock"
+    if not lock.exists():
+        lock.write_text(LOCK_CABECERA, encoding="utf-8")
+        hechos.append("baton/acceptance.lock")
     if hook:
         hooks_dir = Path(git(destino, "rev-parse", "--git-path", "hooks").strip())
         hooks_dir = hooks_dir if hooks_dir.is_absolute() else destino / hooks_dir
@@ -1258,6 +1466,7 @@ def main(argv=None) -> int:
     p.add_argument("--codeowners", help="dueños para .github/CODEOWNERS, p. ej. '@juan'")
     p.add_argument("--forzar", action="store_true")
 
+    sub.add_parser("detectar", help="¿proyecto nuevo o existente?, stack y comandos de test (no necesita baton/)")
     sub.add_parser("validar", help="revisa todos los archivos del flujo")
 
     p = sub.add_parser("efectiva", help="configuración efectiva de un ítem o módulo")
@@ -1267,7 +1476,7 @@ def main(argv=None) -> int:
     p.add_argument("--rol", choices=ROLES + ["humano"])
     p.add_argument("--entidad")
 
-    p = sub.add_parser("estado", help="cambia el estado de un ítem, reporte (US-004-S1) o solicitud")
+    p = sub.add_parser("estado", help="cambia el estado de un ítem, módulo (modulo:pagos), reporte (US-004-S1) o solicitud")
     p.add_argument("objetivo")
     p.add_argument("nuevo")
     p.add_argument("--forzar", action="store_true", help="salta la validación de transición (solo si el humano lo decide)")
@@ -1313,6 +1522,9 @@ def main(argv=None) -> int:
         if a.cmd == "init":
             for h in init(root, a.hook, a.codeowners, a.forzar):
                 print(f"creado: {h}")
+            return 0
+        if a.cmd == "detectar":
+            print(yaml.safe_dump(detectar(root), allow_unicode=True, sort_keys=False), end="")
             return 0
         pr = Proyecto(root)
         if a.cmd == "validar":
@@ -1373,7 +1585,8 @@ def main(argv=None) -> int:
             for x in problemas:
                 print(f"rechazado: {x}")
             if problemas:
-                print("\nLos tests de aceptación congelados solo cambian con una solicitud aprobada (FORMATOS.md §6–7).")
+                print("\nLos tests de aceptación congelados solo cambian con una solicitud aprobada: créala desde "
+                      "baton/templates/request.md, pasa el ítem a Escalado y entrega el turno al navigator.")
                 return 1
             print("lock ok")
             return 0

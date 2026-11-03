@@ -3,7 +3,7 @@
 # Uso: pruebas/e2e.sh [directorio-temporal]
 set -u
 AQUI=$(cd "$(dirname "$0")" && pwd)
-FX=$AQUI/fixtures; D=${1:-$(mktemp -d)/demo}; SRC=$AQUI/../skills/baton-setup/assets/baton.py
+FX=$AQUI/fixtures; D=${1:-$(mktemp -d)/demo}; SRC=$AQUI/../skills/baton-start/assets/baton.py
 FALLAS=0
 rm -rf $D && mkdir -p $D && cd $D && git init -q && git config user.email t@t && git config user.name t
 python3 $SRC init --hook --codeowners @juan >/dev/null
@@ -74,6 +74,39 @@ creado: 2026-11-03
 ---
 MD
 python3 baton/bin/baton.py efectiva US-004 | grep -A1 "verificador_activo" | grep -q "valor: true" && ok "Delegado fuerza verificador" || bad "verificador no forzado"
+# flujo de inicio: visión, mapa de módulos y tipos de backlog
+mkdir -p baton/system && cp $FX/../../skills/baton-start/assets/templates/overview.md baton/system/overview.md
+python3 baton/bin/baton.py sync --autor juan --motivo "visión inicial" >/dev/null
+grep -q "| vision | creado" baton/backlog/HISTORY.md && ok "sync registra la visión" || bad "visión no registrada"
+python3 baton/bin/baton.py estado US-002 Listo 2>&1 | grep -q "módulo Activo" && ok "ítem no pasa a Listo con su módulo sin abrir" || bad "módulo no abierto aceptado"
+mkdir -p baton/modules/reportes
+cat > baton/modules/reportes/module.md <<'MD'
+---
+formato: 1
+modulo: reportes
+titulo: Reportes
+estado: Candidato
+prioridad: 5
+origen: agente
+propuesto_por: opus
+creado: 2026-11-03
+config: {}
+---
+## Objetivo
+Exportar los gastos.
+
+## Por qué se propone
+Los usuarios lo piden.
+MD
+python3 baton/bin/baton.py next --rol navigator | grep -q "modulo:reportes · Candidato" && ok "next pide decidir el módulo candidato" || bad "next sin módulo candidato"
+python3 baton/bin/baton.py estado modulo:reportes Activo >/dev/null 2>&1 && bad "módulo candidato pasó directo a Activo" || ok "módulo candidato no salta a Activo"
+python3 baton/bin/baton.py estado modulo:reportes Descartado >/dev/null && ok "módulo candidato descartado"
+python3 baton/bin/baton.py estado modulo:catalogo Cerrado 2>&1 | grep -q "ítems en desarrollo" && ok "no cierra un módulo con ítems en desarrollo" || bad "cerró módulo con trabajo"
+grep -q "## Mapa de módulos" baton/backlog/BACKLOG.md && ok "BACKLOG.md muestra el mapa de módulos" || bad "sin mapa de módulos"
+sed -e 's/^id: US-004/id: TEC-001/; s/^tipo: historia/tipo: tecnico/' baton/backlog/items/US-004.md > baton/backlog/items/TEC-001.md
+python3 baton/bin/baton.py validar 2>&1 | grep -q "no está en backlog.principal" && ok "rechaza un tipo fuera del backlog configurado" || bad "tipo fuera del backlog aceptado"
+rm baton/backlog/items/TEC-001.md
+mkdir -p $D-vacio && git -C $D-vacio init -q && python3 baton/bin/baton.py --root $D-vacio detectar | grep -q "inicio: nuevo" && ok "detectar: proyecto vacío es nuevo" || bad "detectar"
 python3 baton/bin/baton.py validar >/dev/null && ok "validar ok al final" || { bad "validar"; python3 baton/bin/baton.py validar; }
 echo; grep -A6 "## catalogo" baton/backlog/BACKLOG.md
 echo; [ $FALLAS -eq 0 ] && echo "todo ok" || { echo "$FALLAS falla(s)"; exit 1; }

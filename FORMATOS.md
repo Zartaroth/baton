@@ -14,7 +14,7 @@ Formato exacto de cada archivo del flujo. Complementa [METODOLOGIA.md](METODOLOG
 - **Fechas** en ISO 8601: `2026-11-02` para días y `2026-11-02T15:30-03:00` para momentos.
 - **Sobrescrituras con motivo.** Fuera de `config.md`, cada valor de configuración que cambia se escribe como `{ valor, motivo }`. Un valor sin motivo es inválido.
 - **Archivos generados.** Empiezan con `<!-- GENERADO por sync: no editar a mano -->`. Si alguien los edita, el siguiente sync sobrescribe esos cambios.
-- **`HISTORY.md` tiene un solo escritor: `sync`.** Las skills que cambian algo (setup, kickoff, approve, etc.) llaman a sync y le pasan el motivo. Si el cambio se hizo a mano, el siguiente sync pide el motivo.
+- **`HISTORY.md` tiene un solo escritor: `sync`.** Las skills que cambian algo (start, module, approve, etc.) llaman a sync y le pasan el motivo. Si el cambio se hizo a mano, el siguiente sync pide el motivo.
 
 ### Identificadores
 
@@ -30,6 +30,7 @@ Formato exacto de cada archivo del flujo. Complementa [METODOLOGIA.md](METODOLOG
 
 ### Estados
 
+- **Módulo:** `Candidato`, `Planificado`, `Activo`, `Cerrado`, `Descartado`.
 - **Ítem:** `Candidato`, `Pendiente`, `Listo`, `TestsEnRevision`, `TestsCongelados`, `EnCurso`, `Escalado`, `EnVerificacion`, `EnRevision`, `Hecho`, `Descartado`.
 - **Autonomía:** `Pair` > `Checkpoint` > `Delegado` (de más a menos control).
 
@@ -37,10 +38,12 @@ Formato exacto de cada archivo del flujo. Complementa [METODOLOGIA.md](METODOLOG
 
 | Archivo | Ruta | Lo escribe | Tipo |
 |---|---|---|---|
-| Configuración del proyecto | `baton/config.md` | `setup` | maestro |
-| Configuración del módulo | `baton/modules/<m>/module.md` | `kickoff` | maestro |
+| Visión del sistema | `baton/system/overview.md` | `baton-start` (Navigator) | maestro |
+| Decisión (ADR) | `baton/system/adr/ADR-<nnnn>-<tema>.md` | Navigator | maestro |
+| Configuración del proyecto | `baton/config.md` | `baton-start` | maestro |
+| Módulo (fila del mapa de módulos) | `baton/modules/<m>/module.md` | `baton-start`, `baton-module` | maestro |
 | Ítem | `baton/backlog/items/<ítem>.md` | Navigator o humano a mano; los demás roles solo cambian `estado` | maestro |
-| Plan | `baton/modules/<m>/plans/<ítem>.md` | `plan` (Navigator) | maestro |
+| Plan | `baton/modules/<m>/plans/<ítem>.md` | `baton-item` (Navigator) | maestro |
 | Tests congelados | `baton/acceptance.lock` | `approve` | maestro |
 | Solicitud | `baton/modules/<m>/requests/<ítem>-R<n>.md` | quien escala; decide el Navigator | registro |
 | Traspaso | `baton/modules/<m>/handoffs/<id>.md` | el rol que entrega | registro |
@@ -63,9 +66,14 @@ cadencia:
   iteracion_dias: null      # obligatorio si modo = scrum
 wip: 3                      # máximo de ítems en EnCurso, Escalado, EnVerificacion y EnRevision
 
+backlog:
+  principal: historia       # historia | requerimiento | ticket: define la plantilla de los ítems
+  auxiliares: [bug, tecnico]
+
 tipos:                      # tipo de ítem → prefijo del id
   historia: US
-  requisito: RQ
+  requerimiento: RQ
+  ticket: TK
   bug: BUG
   tecnico: TEC
 
@@ -116,7 +124,7 @@ Notas libres: por qué se eligió esta configuración, convenciones del equipo, 
 - `transporte` (`subagente` | `sesion` | `externo`) solo aplica a entidades de tipo `modelo`. Una persona recibe el traspaso como archivo.
 - `autonomia_minima` es opcional. Sirve para proyectos donde nadie debe trabajar por debajo de cierto nivel, por ejemplo por regulación. Solo se cambia a nivel de proyecto.
 
-**Validaciones** (las hace `setup` al guardar y cualquier skill al cargar):
+**Validaciones** (las hace `baton-start` al guardar y cualquier skill al cargar):
 
 | Regla | Invariante | Si falla |
 |---|---|---|
@@ -124,6 +132,7 @@ Notas libres: por qué se eligió esta configuración, convenciones del equipo, 
 | `autor_tests` no está en `aprobador_tests` | 2 | error |
 | `verificador` es una entidad distinta del `driver` | 4 | aviso: se acepta la misma entidad solo en sesión distinta |
 | Si `autonomia` es `Delegado`, `verificador.activo` es `true` | 8 | error |
+| `backlog.principal` es historia, requerimiento o ticket, y los tipos del backlog tienen prefijo en `tipos` | – | error |
 | `autonomia` no es menor que `autonomia_minima` | 6 | error |
 | `aprobador_tests` incluye al menos una persona | 9 | error |
 | Toda entidad usada en `roles` existe en `entidades` | – | error |
@@ -131,29 +140,56 @@ Notas libres: por qué se eligió esta configuración, convenciones del equipo, 
 
 ---
 
-## 2. Configuración del módulo: `baton/modules/<m>/module.md`
+## 2. Módulo: `baton/modules/<m>/module.md`
 
-Guarda el alcance y **solo las diferencias** con `config.md`, cada una con su motivo.
+Cada `module.md` es una fila del **mapa de módulos**. Mientras está `Planificado`, basta con el frontmatter y `## Objetivo`. Al abrirlo (`baton-module`) se completan el alcance, los riesgos y **solo las diferencias** de configuración con `config.md`, cada una con su motivo.
+
+### 2.1 Módulo planificado (en el mapa)
+
+```markdown
+---
+formato: 1
+modulo: pagos
+titulo: Pagos
+estado: Planificado         # Candidato | Planificado | Activo | Cerrado | Descartado
+prioridad: 2
+origen: humano              # humano | agente (agrega propuesto_por; estado Candidato)
+creado: 2026-11-02
+inicio: null
+cierre: null
+config: {}
+---
+
+## Objetivo
+Cobrar los pedidos con tarjeta y registrar los pagos.
+```
+
+### 2.2 Módulo abierto
 
 ```markdown
 ---
 formato: 1
 modulo: catalogo
-estado: Activo              # Planificado | Activo | Cerrado
-inicio: 2026-11-02
+titulo: Catálogo
+estado: Activo
+prioridad: 1
+origen: humano
+creado: 2026-11-02
+inicio: 2026-11-03
 cierre: null
 config:
   autonomia:
     valor: Delegado
     motivo: "CRUD interno sin datos sensibles; no hay tiempo de acompañar cada ítem"
-    desde: 2026-11-02
+    desde: 2026-11-03
   roles.driver:
     valor: { entidad: codex, transporte: externo }
     motivo: "Probar Codex en un módulo de bajo riesgo"
-    desde: 2026-11-02
+    desde: 2026-11-03
 ---
 
-# Módulo catalogo
+## Objetivo
+Mostrar los productos con su precio.
 
 ## Alcance
 Qué incluye, en 3–6 líneas.
@@ -161,7 +197,7 @@ Qué incluye, en 3–6 líneas.
 ## Fuera de alcance
 
 ## Riesgos
-Lo que evaluó el kickoff para recomendar la autonomía. Si el humano eligió un nivel
+Lo que se evaluó para recomendar la autonomía. Si el humano eligió un nivel
 más bajo que el recomendado, se anota aquí.
 
 ## Referencias
@@ -170,8 +206,19 @@ más bajo que el recomendado, se anota aquí.
 
 **Reglas:**
 
-- Los ítems del módulo **no** se listan aquí. Cada ítem declara su `modulo` y sync arma la lista.
-- `desde` es obligatorio. Si se cambia la configuración a mitad del módulo, el cambio aplica desde el siguiente slice. Los slices ya empezados conservan la configuración de su traspaso.
+- La carpeta se llama igual que `modulo`.
+- **El mapa es iterable.** Los módulos se agregan, dividen, fusionan, repriorizan o descartan en cualquier momento, siempre con motivo. Al dividir o fusionar, el original pasa a `Descartado` con una nota en `## Objetivo` ("dividido en X e Y"), y sus ítems se mueven cambiando su campo `modulo`.
+- **Transiciones:**
+  - `Candidato` → `Planificado` o `Descartado`;
+  - `Planificado` → `Activo` o `Descartado`;
+  - `Activo` → `Cerrado` o `Planificado`;
+  - `Cerrado` → `Activo`;
+  - `Descartado` → `Planificado`.
+
+  `baton.py estado modulo:<m> <estado>` las valida, y rechaza el cierre si quedan ítems en desarrollo.
+- Un ítem solo pasa de `Pendiente` a `Listo` si su módulo está `Activo`.
+- Los ítems del módulo **no** se listan aquí. Cada ítem declara su `modulo`, y sync arma la lista.
+- `desde` es obligatorio en cada diferencia de configuración. Si la configuración cambia a mitad del módulo, el cambio aplica desde el siguiente slice. Los slices ya empezados conservan la configuración de su traspaso.
 - Las claves que acepta `config` están en la sección 3. Cualquier otra es un error.
 
 ---
@@ -238,7 +285,7 @@ Como cliente quiero pagar con tarjeta para terminar la compra sin salir de la ti
 Retirado el 2026-11-04: lo resuelve la pasarela. Ver US-004-R1.
 
 ## Seguridad
-Resultado de la revisión de refine. Ejemplo: los datos de tarjeta nunca pasan por
+Resultado de la revisión de seguridad de baton-item. Ejemplo: los datos de tarjeta nunca pasan por
 el servidor (tokenización en el cliente). Si no hay impacto, se escribe "sin impacto".
 
 ## Preguntas abiertas
@@ -270,14 +317,29 @@ creado: 2026-11-02
 
 Un **candidato** lleva `estado: Candidato`, `origen: agente`, `propuesto_por: <entidad>` y una sección `## Por qué se propone`.
 
-### 4.3 Reglas
+### 4.3 Propósito según el tipo
+
+El tipo define la sección de propósito. Las plantillas están en `baton/templates/item-<tipo>.md`.
+
+| Tipo | Sección de propósito | Forma |
+|---|---|---|
+| `historia` | `## Valor` | "Como <rol> quiero <acción> para <beneficio>" |
+| `requerimiento` | `## Requerimiento` (y `## Justificación`) | "El sistema debe <comportamiento> cuando <condición>" |
+| `ticket` | `## Descripción` | problema o tarea, con su contexto |
+| `bug` | `## Comportamiento esperado` (y `## Comportamiento actual`, `## Pasos para reproducir`) | el AC-1 reproduce el error |
+| `tecnico` | `## Motivo` | qué riesgo reduce; no tiene valor visible para el usuario |
+
+El tipo de un ítem debe ser `backlog.principal` o uno de `backlog.auxiliares`.
+
+### 4.4 Reglas
 
 - **No hay campo de enlaces.** Los tests salen de `acceptance.lock`, los slices del plan y los commits de los reportes. Sync arma la trazabilidad a partir de esos archivos, así cada dato vive en un solo lugar.
 - **Criterios:** un criterio retirado no se borra. Se tacha su título y se anota la fecha, el motivo y la solicitud.
 - **Quién edita:** el Navigator y el humano editan todo. Los demás roles solo cambian `estado`, y solo cuando tienen el turno.
 - **`config`** acepta solo las claves marcadas para ítem en la sección 3.
 - **Definition of Ready** (requisito para pasar a `Listo`):
-  - `## Valor` escrito;
+  - su módulo está `Activo`;
+  - la sección de propósito del tipo escrita (ver 4.3);
   - al menos un criterio con Dado / Cuando / Entonces;
   - `## Preguntas abiertas` vacío;
   - `## Seguridad` escrito;
@@ -554,13 +616,20 @@ Comentarios.
 
 **En curso:** 2 de 3 · **Turnos:** navigator 1 · autor_tests 1 · driver 1
 
-## pagos · Pair
+## Mapa de módulos
+| Módulo | Estado | Prioridad | Autonomía | Ítems hechos | Objetivo |
+|---|---|---|---|---|---|
+| pagos | Activo | 1 | Pair | 0/2 | Cobrar los pedidos con tarjeta |
+| catalogo | Activo | 2 | Delegado ↓ | 1/3 | Mostrar los productos con su precio |
+| reportes | Planificado | 3 | Checkpoint | – | Exportar ventas |
+
+## pagos · Activo · Pair
 | ID | Título | Estado | Turno | Prioridad | Autonomía | Slices | Tests |
 |---|---|---|---|---|---|---|---|
 | US-004 | Cobrar con tarjeta | EnCurso | driver | 1 | Pair | 1/2 | 2/2 congelados |
 | US-006 | Texto del recibo | Listo | autor_tests | 3 | Checkpoint ↓ | 0/1 | – |
 
-## catalogo · Delegado ↓
+## catalogo · Activo · Delegado ↓
 | ... |
 
 ## Candidatos
@@ -580,8 +649,8 @@ Comentarios.
 
 | Fecha | Autor | Objeto | Cambio | Motivo | Ref |
 |---|---|---|---|---|---|
-| 2026-11-02T10:00 | juan | config | autonomia: – → Pair | primer proyecto con el flujo | setup |
-| 2026-11-02T10:20 | juan | modulo:catalogo | autonomia: Pair → Delegado ↓ | CRUD interno sin datos sensibles | kickoff |
+| 2026-11-02T10:00 | juan | config | autonomia: – → Pair | primer proyecto con el flujo | baton-start |
+| 2026-11-02T10:20 | juan | modulo:catalogo | autonomia: Pair → Delegado ↓ | CRUD interno sin datos sensibles | baton-module |
 | 2026-11-02T11:05 | opus | US-004 | estado: Pendiente → Listo | refinado | – |
 | 2026-11-02T15:30 | juan | US-004 | tests congelados: AC-1, AC-2, AC-3 | aprobación inicial | acceptance.lock |
 | 2026-11-04T09:40 | juan | US-004/AC-3 | retirado | lo resuelve la pasarela | US-004-R1 |
@@ -593,7 +662,64 @@ Comentarios.
 
 ---
 
-## 11. Decisiones de formato para revisar
+## 11. Visión y decisiones
+
+### `baton/system/overview.md`
+
+Lo escribe `baton-start` y el humano lo confirma. Se actualiza cuando cambia el rumbo, y sync registra cada cambio de sección.
+
+```markdown
+---
+formato: 1
+inicio: nuevo               # nuevo | existente
+actualizado: 2026-11-03
+---
+
+# Visión del sistema
+
+## Propósito
+## Usuarios
+## Objetivos
+## Alcance inicial
+## Fuera de alcance
+## Escala y horizonte
+## Restricciones
+## Punto de partida
+## Arquitectura
+## Glosario
+## Lo que no sabemos
+```
+
+- **Escala y horizonte** es una de estas: prototipo, MVP, producto pequeño, empezar pequeño y migrar fácil, o gran escala desde el inicio. Va con los usuarios y el volumen esperados. La recomendación de stack depende de esto.
+- **Punto de partida** solo se usa en proyectos existentes. Indica la confianza de cada afirmación: *visto en el código*, *inferido* o *supuesto*.
+
+### `baton/system/adr/ADR-<nnnn>-<tema>.md`
+
+```markdown
+---
+formato: 1
+id: ADR-0001
+titulo: Stack del proyecto
+estado: Aceptado            # Propuesto | Aceptado | Reemplazado | Descartado
+fecha: 2026-11-03
+reemplaza: null
+reemplazado_por: null
+---
+
+## Contexto
+## Opciones consideradas
+## Decisión
+## Consecuencias
+## Revisar si
+```
+
+- **ADR-0001 es el stack.**
+- **`## Revisar si`** guarda condiciones concretas para reconsiderar la decisión, por ejemplo "más de 10 000 usuarios activos". Así "empezar pequeño y migrar fácil" queda escrito y no es una promesa vacía.
+- Un ADR no se edita para cambiar la decisión. Se escribe uno nuevo con `reemplaza`, y el viejo pasa a `Reemplazado` con `reemplazado_por`.
+
+---
+
+## 12. Decisiones de formato para revisar
 
 1. Claves y valores fijos en español sin tildes, independientes del idioma del proyecto.
 2. El ítem no guarda enlaces: la trazabilidad se arma desde el lock, el plan y los reportes.
@@ -604,19 +730,23 @@ Comentarios.
 7. Un ítem `Escalado` puede volver a `TestsCongelados` cuando la decisión no cambia los tests (antes solo podía volver a `Listo`).
 8. El estado de slice `Terminado` separa "tests en verde" de "aprobado por otro". Ver la sección 9.
 9. `sync` detecta los cambios comparando con una instantánea propia (`baton/.sync/snapshot.json`, versionada), no con `git diff`. Así ve cambios sin commitear, compara campo por campo y no depende del historial de git.
+10. El backlog base es un **mapa de módulos** (épicas), no una lista de ítems sueltos. Los ítems se definen al abrir cada módulo.
+11. Tipo de backlog **principal** (historia, requerimiento o ticket) más **auxiliares** (bug, técnico), en vez de un tipo único.
 
 ---
 
-## 12. Archivos de la herramienta
+## 13. Archivos de la herramienta
 
-`baton-setup` instala esto en el proyecto:
+`baton-start` instala esto en el proyecto:
 
 ```
 baton/
-  bin/baton.py          herramienta determinista: validar, efectiva, next, estado, handoff, tomar, sync, lock
+  bin/baton.py         herramienta determinista: detectar, validar, efectiva, next, estado, handoff, tomar, sync, lock
   hooks/pre-commit     llama a `baton.py lock revisar --staged`; .git/hooks/pre-commit lo invoca
-  templates/*.md       plantillas de config, módulo, ítem, plan, solicitud y reporte
+  templates/*.md       plantillas: config, visión, ADR, módulo, ítem por tipo, plan, solicitud y reporte
   .sync/snapshot.json  instantánea del último sync
 ```
+
+`baton.py detectar` funciona antes de instalar nada. Dice si el proyecto es nuevo o existente, su stack, los tests y los comandos sugeridos, para que el agente no gaste tokens explorando.
 
 Los traspasos no tienen plantilla: los genera `baton.py handoff`, que calcula `config_efectiva`, `leer`, `no_tocar` y `## Al terminar` según el rol y la autonomía.

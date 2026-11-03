@@ -4,7 +4,8 @@ proyecto: tienda
 idioma: es
 cadencia: { modo: kanban, iteracion_dias: null }
 wip: 2
-tipos: { historia: US, bug: BUG }
+backlog: { principal: historia, auxiliares: [bug] }
+tipos: { historia: US, bug: BUG, tecnico: TEC }
 herramienta_externa: { tipo: ninguna, destino: null }
 rutas:
   tests_aceptacion: tests/acceptance

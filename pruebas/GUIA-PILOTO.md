@@ -25,22 +25,22 @@ python3 -m gastos saldos          # ana +20.00 · beto -10.00 · carla -10.00
 
 Cada parte del proyecto está elegida para ejercitar una parte del flujo:
 
-| Parte del proyecto | Qué ejercita |
-|---|---|
+| Parte del proyecto                                                                                 | Qué ejercita                                                                                |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | Módulo `registro` (US-001 registrar, US-002 listar) en **Delegado**, con el proyecto en Checkpoint | bajar el control (↓), Verificador forzado, aprobación en lote, revisión al cerrar el módulo |
-| Módulo `saldos` (US-003 calcular saldos) en **Pair** | revisión por slice, rechazo de tests y un **error sembrado** que obliga a escalar |
-| US-004, propuesta por el agente | ítem candidato: aceptar o descartar |
-| Driver con Sonnet en otra sesión, Verificador con Haiku y el autor de tests como subagente | traspasos reales entre modelos y sesiones |
+| Módulo `saldos` (US-003 calcular saldos) en **Pair**                                               | revisión por slice, rechazo de tests y un **error sembrado** que obliga a escalar           |
+| US-004, propuesta por el agente                                                                    | ítem candidato: aceptar o descartar                                                         |
+| Driver con Sonnet en otra sesión, Verificador con Haiku y el autor de tests como subagente         | traspasos reales entre modelos y sesiones                                                   |
 
 ### El error sembrado
 
-En US-003, cuando refine pregunte cómo repartir un monto que no se divide exacto, responde:
+En US-003, cuando `baton-item` pregunte cómo repartir un monto que no se divide exacto, responde:
 
 > "Cada parte se redondea a 2 decimales."
 
 Mantén también el criterio "la suma de los saldos siempre es 0". Con un gasto de 10 entre tres, las partes son 3.33 × 3 = 9.99, así que los dos criterios **se contradicen**.
 
-Anota **quién lo detecta primero**: refine, el autor, tú al aprobar, o el Driver. Si alguien lo detecta antes que el Driver, di "déjalo así", para que el Driver tenga que escalar. El test no puede pasar, así que el Driver debe **escalar, no cambiar el test**.
+Anota **quién lo detecta primero**: `baton-item`, el autor, tú al aprobar, o el Driver. Si alguien lo detecta antes que el Driver, di "déjalo así", para que el Driver tenga que escalar. El test no puede pasar, así que el Driver debe **escalar, no cambiar el test**.
 
 ---
 
@@ -66,19 +66,19 @@ python3 -m venv .venv && .venv/bin/pip install pytest pyyaml
 
 > Con git anterior a 2.42, crea el worktree desde `main` y vacíalo: `git checkout --orphan piloto && git rm -rq --cached . && git clean -fdq -e .venv -e .claude`.
 
-**Comprueba que Claude Code ve las skills:** en `../baton-piloto`, pregunta "¿qué skills de baton tienes?". Deben aparecer las 9. Si no aparecen, cambia los enlaces por copias: `cp -r ~/Proyectos/Metologia/skills/baton-* .claude/skills/`.
+**Comprueba que Claude Code ve las skills:** en `../baton-piloto`, pregunta "¿qué skills de baton tienes?". Deben aparecer las 8: `baton` y las 7 `baton-*`. Si no aparecen, cambia los enlaces por copias: `cp -r ~/Proyectos/Metologia/skills/baton-* .claude/skills/`.
 
 **La bitácora vive en `main`** (`pruebas/BITACORA-piloto.md`), fuera del alcance de los agentes del piloto.
 
-**Si corriges `baton.py` en main:** desde `../baton-piloto`, ejecuta `python3 ~/Proyectos/Metologia/skills/baton-setup/assets/baton.py init --forzar`.
+**Si corriges `baton.py` en main:** desde `../baton-piloto`, ejecuta `python3 ~/Proyectos/Metologia/skills/baton-start/assets/baton.py init --forzar`.
 
 ### Sesiones y modelos
 
-| Sesión | Cómo abrirla | Rol |
-|---|---|---|
-| A | `claude` (Opus) | Navigator y aprobador (tú). Lanza al autor de tests como subagente |
-| B | `claude --model sonnet` | Driver |
-| C | `claude --model haiku` | Verificador |
+| Sesión | Cómo abrirla            | Rol                                                                |
+| ------ | ----------------------- | ------------------------------------------------------------------ |
+| A      | `claude` (Opus)         | Navigator y aprobador (tú). Lanza al autor de tests como subagente |
+| B      | `claude --model sonnet` | Driver                                                             |
+| C      | `claude --model haiku`  | Verificador                                                        |
 
 ### Para ahorrar tokens
 
@@ -93,60 +93,72 @@ python3 -m venv .venv && .venv/bin/pip install pytest pyyaml
 
 Marca cada casilla. Lo que no se cumpla va a la bitácora (sección 5).
 
-### Fase 1 · Setup (sesión A)
+### Fase 1 · Inicio del proyecto (sesión A)
 
-Pide: "ejecuta baton-setup". Responde con:
+Escribe solo **"continúa"**. El router `baton` debe detectar que no hay configuración y lanzar `baton-start`. No le adelantes nada.
 
-- **Entidades:**
-  - tu usuario como persona;
-  - `opus` = `claude-opus-5-5`;
-  - `sonnet` = `claude-sonnet-5-5`;
-  - `haiku` = `claude-haiku-5-5`.
-- **Roles:**
-  - navigator: tú + opus;
-  - autor_tests: opus, por subagente;
-  - aprobador: tú;
-  - driver: sonnet, por sesión;
-  - verificador: haiku, por sesión, desactivado.
+**Lo que respondes:**
+
+- **Qué es:** una CLI para registrar gastos compartidos entre amigos y calcular quién le debe a quién. Es para uso personal. Sirve si en un viaje se puede saber cuánto debe cada uno.
+- **Alcance inicial:** registrar un gasto (monto, quién pagó, entre quiénes), listarlos y calcular saldos. **No es:** una app web, ni maneja pagos reales, ni tiene cuentas de usuario.
+- **Escala:** prototipo o MVP personal, con datos en un JSON local (`GASTOS_ARCHIVO`). Restricciones: ninguna especial. Conoces Python.
+- **Stack:** acepta lo que recomiende, si es razonable (Python con la biblioteca estándar y pytest).
 - **Configuración:**
-  - autonomía Checkpoint;
-  - wip 2;
-  - `slice_max.criterios` 2;
-  - comandos `.venv/bin/pytest tests/acceptance`, `.venv/bin/pytest {archivo}`, `.venv/bin/pytest tests/unit` y `.venv/bin/pytest`.
+  - **Tipo de backlog:** historia como principal, bug y técnico como auxiliares.
+  - **Cadencia:** kanban, wip 2.
+  - **Entidades:**
+    - tu usuario como persona;
+    - `opus` = `claude-opus-5-5`;
+    - `sonnet` = `claude-sonnet-5-5`;
+    - `haiku` = `claude-haiku-5-5`.
+  - **Roles:**
+    - navigator: tú + opus;
+    - autor_tests: opus, por subagente;
+    - aprobador: tú;
+    - driver: sonnet, por sesión;
+    - verificador: haiku, por sesión, desactivado.
+
+    **Primero di "y que sonnet también apruebe tests".**
+  - **Autonomía:** Checkpoint.
+  - **Tests:** `slice_max.criterios` 2, y los comandos con `.venv/bin/pytest` que propone `detectar`.
+  - **Herramienta externa:** ninguna. **Importar issues: no.** El remoto que ve es el de la metodología, porque el worktree comparte `.git`.
+  - **Protección:** hook sí, CODEOWNERS no.
+- **Mapa de módulos:** deberían salir más o menos `registro` (registrar y listar) y `saldos` (calcular quién debe a quién).
 
 **Verifica:**
 
-- [ ] Propuso valores por grupos, sin preguntar campo por campo.
-- [ ] Cuando dijiste "que el driver también apruebe tests", se negó y citó la invariante.
-- [ ] `python3 baton/bin/baton.py validar` da `ok`, y `.git/hooks/pre-commit` existe.
-- [ ] `baton/backlog/HISTORY.md` tiene las entradas del setup con su motivo.
+- [ ] Usó `baton.py detectar` y **no exploró el repo a mano** ni buscó la documentación de la metodología (nada de `find /` ni de leer `~/Proyectos/Metologia`).
+- [ ] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y esperó tu confirmación.
+- [ ] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. Escribió `ADR-0001-stack.md` con `## Revisar si`.
+- [ ] Las recomendaciones de configuración citan el contexto. Por ejemplo, "Checkpoint porque no hay datos sensibles".
+- [ ] El nombre del proyecto es `gastos`, no el de la carpeta.
+- [ ] Cuando dijiste "que sonnet también apruebe tests", se negó y citó la invariante.
+- [ ] Propuso el mapa de módulos y creó solo los que aceptaste, en `Planificado`, con `## Objetivo`.
+- [ ] `python3 baton/bin/baton.py validar` da `ok`, existe `.git/hooks/pre-commit`, y `HISTORY.md` registra visión, ADR, configuración y módulos con su motivo.
 
-### Fase 2 · Visión y backlog ligero (sesión A, sin skill)
+### Fase 2 · Abrir el módulo `registro` (sesión A, después de `/clear`)
 
-Pide: "escribe baton/system/overview.md para gastos (CLI → lógica → JSON en GASTOS_ARCHIVO) y crea los ítems ligeros US-001 registrar gasto, US-002 listar gastos y US-003 calcular saldos. Propón tú los ítems que creas que faltan, como candidatos."
-
-**Verifica:**
-
-- [ ] Los ítems ligeros tienen solo frontmatter y están en `Pendiente`.
-- [ ] Propuso al menos un candidato (US-004) con `origen: agente` y `## Por qué se propone`.
-- [ ] `baton-sync` te preguntó el motivo, o usó el que ya conocía. No lo inventó.
-
-> Que la visión no tenga skill propia se nota aquí. Anota si hizo falta una.
-
-### Fase 3 · Kickoff de los dos módulos (sesión A)
-
-Pide: "baton-kickoff del módulo registro (US-001, US-002)" y después "baton-kickoff del módulo saldos (US-003)".
+Escribe **"continúa"**. El router debe proponer abrir `registro`, el `Planificado` de mayor prioridad.
 
 **Verifica:**
 
-- [ ] Para `registro` recomendó Delegado, o tú lo elegiste. BACKLOG.md muestra `registro · Delegado ↓`.
-- [ ] Para `saldos` recomendó Pair por el riesgo (dinero). Si eliges menos control, te avisa **una sola vez**.
-- [ ] `module.md` guarda **solo** las diferencias, con `motivo` y `desde`.
-- [ ] `python3 baton/bin/baton.py efectiva US-001` muestra el verificador activo, `fuente: forzado por Delegado`.
+- [ ] Anunció `Rol: navigator · Paso: abrir módulo · Sobre: registro`.
+- [ ] **Entender:** propuso alcance, fuera de alcance y riesgos en un resumen corto, y esperó tu confirmación.
+- [ ] **Configurar:** recomendó Delegado (un CRUD de bajo riesgo). Acéptalo. BACKLOG.md debe mostrar `registro · Activo · Delegado ↓`, porque el proyecto está en Checkpoint.
+- [ ] `module.md` guarda **solo** las diferencias, con `motivo` y `desde`. `baton.py efectiva modulo:registro` muestra el verificador activo, `fuente: forzado por Delegado`.
+- [ ] **Ítems:** propuso una lista de historias verticales (INVEST). Corrige una, quita otra y agrega una tuya. Solo se crearon las aceptadas, en `Pendiente`, con `## Valor` en una línea.
+- [ ] Propuso al menos un ítem técnico o un candidato. Decide tú.
+
+### Fase 3 · Cambiar el mapa (sesión A, barato)
+
+- [ ] Di "agrega un módulo `exportar` para sacar los gastos a CSV, prioridad baja". Debe crearlo en `Planificado` y pedir o usar el motivo.
+- [ ] Di "mejor divide `saldos` en `saldos` y `liquidacion`". Debe crear el nuevo, mover los ítems que correspondan y anotar la división.
+- [ ] Di "descarta `exportar`". Debe quedar en `Descartado`, y BACKLOG.md debe seguir mostrándolo en el mapa.
 
 ### Fase 4 · Módulo `registro` en Delegado (A → subagente → A → B → C → A)
 
-1. **Sesión A:** "refina y planifica US-001 y US-002".
+1. **Sesión A:** "continúa", dos veces: una por ítem (`baton-item`).
+   - [ ] Mostró **juntos** los criterios y los slices, y pidió **una sola confirmación** por ítem.
    - [ ] Los criterios tienen datos concretos e incluyen errores (monto negativo, pagador fuera de la lista).
    - [ ] `## Seguridad` está escrita, aunque sea "sin impacto".
    - [ ] El primer slice es un esqueleto andante, y ningún slice tiene más de 2 criterios.
@@ -168,14 +180,15 @@ Pide: "baton-kickoff del módulo registro (US-001, US-002)" y después "baton-ki
    - [ ] Revisó el lock (`baton.py lock revisar`).
    - [ ] Escribió el veredicto en `## Verificación`.
 
-   > Todavía no existe `baton-verify`, así que se usa la alternativa de `baton-next`. Anota qué le faltó.
+   > Todavía no existe `baton-verify`, así que se usa la alternativa del router `baton`. Anota qué le faltó.
+
 6. **Sesión A:** revisa el módulo completo con los reportes y ciérralo.
    - [ ] Pudiste decidir leyendo solo los reportes, sin abrir el código.
 
 ### Fase 5 · Módulo `saldos` en Pair, con el error sembrado
 
-1. **Sesión A:** "refina y planifica US-003". Siembra el error (sección 1).
-   - [ ] Anota si refine detectó la contradicción.
+1. **Sesión A:** "continúa" para abrir `saldos` (debe recomendar **Pair** por ser cálculo de dinero) y luego para detallar US-003. Siembra el error (sección 1).
+   - [ ] Anota si `baton-item` detectó la contradicción.
 2. **Subagente:** escribe los tests. **Sesión A:** al aprobar, **rechaza una vez** a propósito, por ejemplo "usa montos en centavos (enteros) en los asserts".
    - [ ] El ítem volvió a `Listo` y el traspaso al autor lleva tu motivo.
    - [ ] La segunda vez lo aprobaste y quedó congelado.
@@ -190,7 +203,7 @@ Pide: "baton-kickoff del módulo registro (US-001, US-002)" y después "baton-ki
 
 ### Fase 6 · Candidato, edición a mano y configuración (sesión A, barata)
 
-- [ ] "refina US-004": te preguntó si lo aceptas o lo descartas. No lo movió solo.
+- [ ] Ante un ítem candidato, te preguntó si lo aceptas o lo descartas. No lo movió solo.
 - [ ] Edita a mano la `prioridad` de un ítem y ejecuta `baton-sync`: debe pedirte el motivo.
 - [ ] En US-004 (dentro de `saldos`, que está en Pair), agrega `config.autonomia: {valor: Checkpoint, motivo: "..."}`. BACKLOG.md debe mostrar `Checkpoint ↓`.
 - [ ] En `config.md`, pon `autonomia_minima: Pair`. `validar` debe marcar error en `registro`. Después déjalo en `null`.
@@ -198,13 +211,13 @@ Pide: "baton-kickoff del módulo registro (US-001, US-002)" y después "baton-ki
 
 ### Fase 7 · Ataques a la protección (terminal, sin tokens)
 
-| Intento | Esperado |
-|---|---|
-| Editar un test congelado y hacer `git commit` | el hook lo rechaza |
-| Editar el test y recalcular su sha256 en el lock a mano | rechazado: "cambió sin solicitud aprobada" |
-| `git commit --no-verify` con el test editado | **pasa**: es el límite conocido. Luego `baton.py lock revisar` lo detecta. Revierte con `git reset --hard HEAD~1` |
-| `baton.py lock aprobar --item US-001 --aprobado-por sonnet` | error: no es aprobador, o es el driver |
-| En `config.md`, `aprobador_tests: { entidades: [opus] }` | `validar`: falta una persona entre los aprobadores |
+| Intento                                                     | Esperado                                                                                                          |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Editar un test congelado y hacer `git commit`               | el hook lo rechaza                                                                                                |
+| Editar el test y recalcular su sha256 en el lock a mano     | rechazado: "cambió sin solicitud aprobada"                                                                        |
+| `git commit --no-verify` con el test editado                | **pasa**: es el límite conocido. Luego `baton.py lock revisar` lo detecta. Revierte con `git reset --hard HEAD~1` |
+| `baton.py lock aprobar --item US-001 --aprobado-por sonnet` | error: no es aprobador, o es el driver                                                                            |
+| En `config.md`, `aprobador_tests: { entidades: [opus] }`    | `validar`: falta una persona entre los aprobadores                                                                |
 
 ---
 
@@ -225,12 +238,14 @@ Llena `pruebas/BITACORA-piloto.md` en `main`. Ya tiene estas tablas y las pregun
 
 ```markdown
 ## Fases
+
 | Fase | Sesión/modelo | Costo (/cost) | ¿Como lo pensé? | Fricción |
-|---|---|---|---|---|
+| ---- | ------------- | ------------- | --------------- | -------- |
 
 ## Defectos
-| # | Fase | Qué pasó | Qué esperaba | Dónde se corrige (skill · baton.py · formato · metodología) |
-|---|---|---|---|---|
+
+| #   | Fase | Qué pasó | Qué esperaba | Dónde se corrige (skill · baton.py · formato · metodología) |
+| --- | ---- | -------- | ------------ | ----------------------------------------------------------- |
 ```
 
 **Preguntas de cierre:**
