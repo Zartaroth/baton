@@ -1,0 +1,28 @@
+name: pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    name: pruebas
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Instalar PyYAML
+        run: pip install pyyaml
+      - name: Compilar baton.py
+        run: python -m py_compile skills/baton-setup/assets/baton.py
+      - name: Prueba de punta a punta
+        run: bash pruebas/e2e.sh

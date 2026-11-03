@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ideas y preguntas
+    url: https://github.com/Zartaroth/baton/discussions
+    about: Ideas todavía en borrador, dudas sobre cómo aplicar Baton o temas para conversar
+  - name: Reporte de seguridad
+    url: https://github.com/Zartaroth/baton/security/advisories/new
+    about: Formas de saltarse la protección de los tests congelados u otros problemas de seguridad (privado)

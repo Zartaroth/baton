@@ -1,0 +1,38 @@
+name: Error
+description: Algo de baton.py, del hook o de una skill no funciona como dice la documentación
+title: "[Error] "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: componente
+    attributes:
+      label: Componente
+      options: [baton.py, hook pre-commit, skill, plantillas, documentación]
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducirlo
+      description: Comandos ejecutados o lo que se le pidió al agente
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Qué esperabas
+    validations:
+      required: true
+  - type: textarea
+    id: obtenido
+    attributes:
+      label: Qué pasó
+      description: Incluye la salida completa del error
+    validations:
+      required: true
+  - type: input
+    id: entorno
+    attributes:
+      label: Entorno
+      placeholder: "SO, versión de Python, versión de PyYAML, agente usado"

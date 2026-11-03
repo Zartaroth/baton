@@ -1,5 +1,9 @@
 # Baton
 
+[![pruebas](https://github.com/Zartaroth/baton/actions/workflows/pruebas.yml/badge.svg)](https://github.com/Zartaroth/baton/actions/workflows/pruebas.yml)
+[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
+[![Estado: experimental](https://img.shields.io/badge/estado-experimental-orange.svg)](#estado)
+
 Metodología de desarrollo con agentes de IA. Combina un backlog vivo, slices verticales, TDD con tests de aceptación congelados y roles separados que se pasan el turno con archivos dentro del repositorio.
 
 > *An AI-assisted development methodology: a living backlog, vertical slices, TDD against frozen acceptance tests, and separate roles that hand off turns through files in the repo. Documentation is in Spanish.*
@@ -57,6 +61,10 @@ refine → plan → tests en rojo verificado → aprobación humana y congelamie
 ## Estado
 
 Versión 0.3, experimental. El núcleo está escrito y probado con la prueba automática. Falta probarlo con un proyecto real ([guía del piloto](pruebas/GUIA-PILOTO.md)) y escribir `baton-verify`, `baton-review` y los adaptadores para Jira, Trello y GitHub Issues.
+
+## Contribuir
+
+Lo más valioso es que lo pruebes y cuentes cómo te fue: abre un issue de tipo **Experiencia de uso**. Para proponer cambios, lee [CONTRIBUTING.md](CONTRIBUTING.md). Las ideas en borrador van en [Discusiones](https://github.com/Zartaroth/baton/discussions).
 
 ## Licencia
 

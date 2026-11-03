@@ -1,0 +1,38 @@
+name: Propuesta de cambio
+description: Proponer un cambio a la metodología, los formatos o las skills
+title: "[Propuesta] "
+labels: ["propuesta"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Si la idea todavía está verde, empieza mejor por una [Discusión en Ideas](../../discussions/categories/ideas).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options: [Metodología (principios, roles, invariantes), Formatos de archivo, Skills, baton.py, Adaptadores e integraciones, Documentación]
+    validations:
+      required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema
+      description: Qué pasa hoy y por qué es un problema. Si puedes, con un caso real.
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Propuesta
+    validations:
+      required: true
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto
+      description: ¿Toca alguna invariante? ¿Cambia algún formato (sería necesario subir `formato`)? ¿A qué skills afecta?
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas consideradas

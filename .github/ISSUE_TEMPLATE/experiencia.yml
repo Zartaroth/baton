@@ -1,0 +1,49 @@
+name: Experiencia de uso
+description: Cuenta cómo te fue usando Baton en un proyecto (lo más valioso para mejorarlo)
+title: "[Experiencia] "
+labels: ["experiencia"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por probar Baton. No hace falta que completes todo: cualquier dato real sirve.
+  - type: input
+    id: proyecto
+    attributes:
+      label: Proyecto
+      description: Qué construiste, en una línea (tipo, tamaño, lenguaje)
+    validations:
+      required: true
+  - type: input
+    id: herramientas
+    attributes:
+      label: Herramientas y modelos por rol
+      placeholder: "Navigator: Claude Code + Opus · Driver: Codex · Verificador: Sonnet"
+  - type: dropdown
+    id: autonomia
+    attributes:
+      label: Niveles de autonomía que usaste
+      multiple: true
+      options: [Pair, Checkpoint, Delegado]
+  - type: textarea
+    id: funciono
+    attributes:
+      label: Qué funcionó como esperabas
+  - type: textarea
+    id: friccion
+    attributes:
+      label: Dónde hubo fricción
+      description: Pasos incómodos, contexto que faltó en un traspaso, archivos que tuviste que editar a mano, preguntas que sobraron o faltaron
+    validations:
+      required: true
+  - type: textarea
+    id: costo
+    attributes:
+      label: Costo (opcional)
+      description: Tokens o costo aproximado por fase o por nivel de autonomía
+  - type: textarea
+    id: bitacora
+    attributes:
+      label: Bitácora (opcional)
+      description: Si seguiste la guía del piloto, pega tu BITACORA.md
+      render: markdown
