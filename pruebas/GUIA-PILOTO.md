@@ -135,17 +135,18 @@ Escribe solo **`/baton`**. No le adelantes nada. Como el proyecto está vacío, 
 
 **Verifica:**
 
-- [ ] El router anunció `Rol · Paso` y lanzó `baton-start` porque no había configuración.
-- [ ] *(Opcional, en otra sesión limpia)* "empecemos el proyecto", sin barra, también activa el router.
-- [ ] Usó `baton.py detectar` y **no exploró el repositorio a mano** ni leyó la metodología.
-- [ ] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y **esperó tu confirmación**.
-- [ ] **Forma de preguntar:** las decisiones con opciones (escala, stack, tipo de backlog, autonomía, confirmar el resumen) llegaron como **preguntas interactivas**, con la recomendación primero. Las preguntas abiertas (qué es, para quién) llegaron en texto.
-- [ ] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. `ADR-0001-stack.md` existe y tiene `## Revisar si`.
-- [ ] Cada recomendación de configuración cita el contexto. Por ejemplo, "Checkpoint porque no hay datos sensibles".
-- [ ] El proyecto se llama `gastos`, no como la carpeta.
-- [ ] Cuando dijiste "que sonnet también apruebe tests", se negó y citó la invariante.
-- [ ] Creó solo los módulos que aceptaste, en `Planificado`, con `## Objetivo`.
-- [ ] `python3 baton/bin/baton.py validar` da `ok`, existe `.git/hooks/pre-commit`, y `HISTORY.md` registra la visión, el ADR, la configuración y los módulos, con su motivo.
+- [x] El router anunció `Rol · Paso` y lanzó `baton-start` porque no había configuración. ✅ *Intento 2: "Rol: humano + Navigator · Paso: iniciar el proyecto".*
+- [ ] *(Opcional, en otra sesión limpia)* "empecemos el proyecto", sin barra, también activa el router. ⏭️ *Intento 2: no se probó.*
+- [ ] Usó `baton.py detectar` y **no exploró el repositorio a mano** ni leyó la metodología. ⚠️ *Intento 2: usó `detectar` y no leyó la metodología, pero leyó el código de `baton.py` (6 llamadas) para entender los archivos protegidos, las invariantes y el hook (D9).*
+- [x] **Entendió antes de configurar:** te hizo como máximo 2 rondas de preguntas, te mostró un resumen corto (qué, para quién, alcance, qué no es, escala, lo que no sabe) y **esperó tu confirmación**. ✅ *Intento 2: 2 rondas, propuso una versión concreta del alcance y sacó 3 dudas reales (el centavo, decimales, transferencias).*
+- [ ] **Forma de preguntar:** las decisiones con opciones (escala, stack, tipo de backlog, autonomía, confirmar el resumen) llegaron como **preguntas interactivas**, con la recomendación primero. Las preguntas abiertas (qué es, para quién) llegaron en texto. ❌ *Intento 2: el stack, la invariante y la contradicción del módulo 2 fueron interactivas, pero la escala, la confirmación de la visión y **toda la configuración** llegaron en texto (D7).*
+- [x] Recomendó el stack **después** de conocer la escala, con 2 o 3 opciones y su motivo. `ADR-0001-stack.md` existe y tiene `## Revisar si`. ✅ *Intento 2: 3 opciones (stdlib, Click o Typer, script único) y 4 condiciones concretas para revisar.*
+- [x] Cada recomendación de configuración cita el contexto. Por ejemplo, "Checkpoint porque no hay datos sensibles". ✅ *Intento 2: también para kanban (una persona, sin plazos) y para no usar CODEOWNERS. ⚠️ Pero propuso el verificador desactivado **sin entidad**, y eso va a fallar cuando un módulo sea Delegado (D11).*
+- [x] El proyecto se llama `gastos`, no como la carpeta. ✅
+- [x] Cuando dijiste "que sonnet también apruebe tests", se negó y citó la invariante. ✅ *Intento 2: lo hizo con una pregunta interactiva que citaba la invariante 1.*
+- [x] Creó solo los módulos que aceptaste, en `Planificado`, con `## Objetivo`. ✅ *Intento 2: además detectó que "quién debe a quién" contradecía lo que la visión dejaba fuera de alcance, y lo preguntó.*
+- [x] `python3 baton/bin/baton.py validar` da `ok`, existe `.git/hooks/pre-commit`, y `HISTORY.md` registra la visión, el ADR, la configuración y los módulos, con su motivo. ✅ *Intento 2: sí. ⚠️ El agente encontró que `init --hook` rechaza su propio hook (D10).*
+- [ ] **Resumen final:** muestra el mapa de módulos y la configuración en tablas, y dice qué sigue. ❌ *Intento 2: cerró con un resumen en prosa, sin la tabla del backlog ni el detalle de la configuración (D8).*
 
 ### Fase 2 · Cambiar el mapa (sesión A, `/clear`, barata)
 

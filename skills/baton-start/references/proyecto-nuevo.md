@@ -5,7 +5,11 @@
 ## Cómo preguntar
 
 - Haz **2 rondas como máximo**, con varias preguntas por ronda, no una por una.
-- **La ronda 1 es abierta** (qué es, para quién, para qué): hazla en texto. **En la ronda 2**, la escala y las restricciones son de opciones: usa preguntas interactivas. El alcance va en texto.
+- **La ronda 1 es abierta** (qué es, para quién, para qué): hazla en texto.
+- **La ronda 2 se divide en dos:**
+  - el alcance y lo que queda fuera van en texto, con tu propuesta concreta;
+  - **la escala, las restricciones y las dudas con opciones** (por ejemplo, a quién le toca el centavo) van en una tanda interactiva, con tu recomendación primero.
+- La confirmación del resumen también es interactiva.
 - Si el humano responde con poco detalle, **propón tú** una versión concreta y pide que la corrija. Corregir es más rápido que redactar.
 - Lo que siga sin respuesta va a `## Lo que no sabemos`. No bloquea empezar.
 

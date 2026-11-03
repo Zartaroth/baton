@@ -8,7 +8,7 @@ Proyecto: `gastos` · Guía: [GUIA-PILOTO.md](GUIA-PILOTO.md)
 
 | Fase | Sesión/modelo | Costo (/cost) | ¿Como lo pensé? | Fricción |
 |---|---|---|---|---|
-| 1 · Inicio del proyecto | A · Opus | | | |
+| 1 · Inicio del proyecto | A · Opus | (anotar /cost) | Sí en lo esencial: entendió antes de configurar, recomendó el stack después de la escala y detectó una contradicción en el mapa | Configuración en texto, resumen final pobre, leyó el código de baton.py |
 | 2 · Cambiar el mapa | A · Opus | | | |
 | 3 · `registro` (Delegado) | A · subagente · B Sonnet · C Haiku | | | |
 | 4 · `saldos` (Pair) | A · subagente · B Sonnet | | | |
@@ -19,6 +19,12 @@ Proyecto: `gastos` · Guía: [GUIA-PILOTO.md](GUIA-PILOTO.md)
 
 | # | Fase | Qué pasó | Qué esperaba | Dónde se corrige (skill · baton.py · formato · metodología) |
 |---|---|---|---|---|
+| D7 | 1 | La escala, la confirmación de la visión y **toda la configuración** se preguntaron en texto ("responde sí o corrige"), aunque la skill pedía preguntas interactivas. Solo el stack, la invariante y una contradicción fueron interactivas | Decisiones con opciones mediante preguntas interactivas | skill `baton-start`. **Corregido** (sin verificar): el paso 3 define dos tandas interactivas de 4 preguntas, y la ronda 2 separa lo abierto de lo que tiene opciones |
+| D8 | 1 | El cierre fue un resumen en prosa, sin la tabla del mapa de módulos ni el detalle de la configuración | Ver el backlog y la configuración al terminar | skill `baton-start`. **Corregido** (sin verificar): el cierre muestra las tablas de configuración y del mapa de módulos, y la salida de `next` |
+| D9 | 1 | El agente leyó el código de `baton.py` con `grep` y `sed` (6 llamadas) para saber si los protegidos pueden no existir todavía, cómo son las invariantes y cómo funciona el hook | Que la skill diga esas reglas, y comprobarlas con `baton.py validar` | skill `baton-start`. **Corregido** (sin verificar): sección "Reglas que necesitas" y "para comprobar una regla, ejecuta `validar`" |
+| D10 | 1 | `baton.py init --hook` rechaza su propio hook: lo reconoce buscando el texto `baton.py`, que el hook seguro para todas las ramas ya no contiene | Que se pueda reinstalar el hook | baton.py. **Corregido y probado en e2e.** La prueba encontró un segundo bug: `baton/bin/baton.py init` fallaba al intentar copiarse sobre sí mismo |
+| D11 | 1 | El verificador quedó `desactivado` con `entidad: null`. Cuando un módulo sea Delegado, el verificador se activa a la fuerza, y `baton.py` va a fallar | Asignar siempre una entidad al verificador | skill `baton-start` y baton.py. **Corregido**: la skill pide siempre una entidad, y `validar` avisa si falta. **En el piloto sigue en null:** hay que arreglarlo antes de la fase 3 |
+| — | 1 | El agente ofreció abrir un issue o PR del bug en el repositorio de la metodología, porque ve su remoto | — | entorno del piloto (el worktree comparte `.git`); no es un defecto de Baton |
 
 ## Error sembrado
 

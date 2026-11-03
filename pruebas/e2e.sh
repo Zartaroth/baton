@@ -107,6 +107,10 @@ sed -e 's/^id: US-004/id: TEC-001/; s/^tipo: historia/tipo: tecnico/' baton/back
 python3 baton/bin/baton.py validar 2>&1 | grep -q "no está en backlog.principal" && ok "rechaza un tipo fuera del backlog configurado" || bad "tipo fuera del backlog aceptado"
 rm baton/backlog/items/TEC-001.md
 mkdir -p $D-vacio && git -C $D-vacio init -q && python3 baton/bin/baton.py --root $D-vacio detectar | grep -q "inicio: nuevo" && ok "detectar: proyecto vacío es nuevo" || bad "detectar"
+python3 baton/bin/baton.py init --hook >/dev/null 2>&1 && ok "init --hook reinstala su propio hook" || bad "init --hook rechaza su propio hook"
+sed -i 's/verificador:     { entidad: codex, transporte: externo, activo: false }/verificador:     { entidad: null, transporte: sesion, activo: false }/' baton/config.md
+python3 baton/bin/baton.py validar 2>&1 | grep -q "el verificador no tiene entidad" && ok "avisa si el verificador no tiene entidad" || bad "sin aviso de verificador sin entidad"
+git checkout -q -- baton/config.md
 python3 baton/bin/baton.py validar >/dev/null && ok "validar ok al final" || { bad "validar"; python3 baton/bin/baton.py validar; }
 echo; grep -A6 "## catalogo" baton/backlog/BACKLOG.md
 echo; [ $FALLAS -eq 0 ] && echo "todo ok" || { echo "$FALLAS falla(s)"; exit 1; }

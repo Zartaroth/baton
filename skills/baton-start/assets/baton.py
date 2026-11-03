@@ -432,6 +432,8 @@ def validar(pr: Proyecto) -> tuple[list[str], list[str]]:
             errores.append(f"{donde}: autor y aprobador de tests deben ser entidades distintas (invariante 2)")
         if ver and ver & driver:
             avisos.append(f"{donde}: verificador y driver son la misma entidad; usa una sesión distinta sin el contexto del driver (invariante 4)")
+        if not entidades_de(roles.get("verificador")) and donde == "config.md":
+            avisos.append("config.md: el verificador no tiene entidad. Aunque esté desactivado, asígnale una: en Delegado se activa a la fuerza")
         if aprob and not any((ents.get(e) or {}).get("tipo") == "persona" for e in aprob):
             errores.append(f"{donde}: entre los aprobadores de tests debe haber al menos una persona (invariante 9)")
 
@@ -1409,8 +1411,10 @@ def init(destino: Path, hook: bool, codeowners: str | None, forzar: bool) -> lis
     flow = destino / "baton"
     for d in ["system/adr", "backlog/items", "modules", "bin", "templates", "hooks", ".sync"]:
         (flow / d).mkdir(parents=True, exist_ok=True)
-    shutil.copy2(Path(__file__).resolve(), flow / "bin" / "baton.py")
-    hechos.append("baton/bin/baton.py")
+    yo, destino_bin = Path(__file__).resolve(), (flow / "bin" / "baton.py").resolve()
+    if yo != destino_bin:  # desde la copia instalada no hace falta copiarse
+        shutil.copy2(yo, destino_bin)
+        hechos.append("baton/bin/baton.py")
     tpl = origen / "templates"
     if tpl.exists():
         for p in tpl.glob("*.md"):
@@ -1418,10 +1422,13 @@ def init(destino: Path, hook: bool, codeowners: str | None, forzar: bool) -> lis
             if not dst.exists() or forzar:
                 shutil.copy2(p, dst)
                 hechos.append(f"baton/templates/{p.name}")
-    hook_src = origen / "pre-commit"
-    shutil.copy2(hook_src, flow / "hooks" / "pre-commit")
-    (flow / "hooks" / "pre-commit").chmod(0o755)
-    hechos.append("baton/hooks/pre-commit")
+    hook_src, hook_dst = origen / "pre-commit", flow / "hooks" / "pre-commit"
+    if hook_src.exists() and hook_src.resolve() != hook_dst.resolve():
+        shutil.copy2(hook_src, hook_dst)
+        hechos.append("baton/hooks/pre-commit")
+    elif not hook_dst.exists():
+        raise BatonError("no encuentro el hook: ejecuta init desde la skill baton-start")
+    hook_dst.chmod(0o755)
     lock = flow / "acceptance.lock"
     if not lock.exists():
         lock.write_text(LOCK_CABECERA, encoding="utf-8")
@@ -1431,7 +1438,8 @@ def init(destino: Path, hook: bool, codeowners: str | None, forzar: bool) -> lis
         hooks_dir = hooks_dir if hooks_dir.is_absolute() else destino / hooks_dir
         hooks_dir.mkdir(parents=True, exist_ok=True)
         dst = hooks_dir / "pre-commit"
-        if dst.exists() and "baton.py" not in dst.read_text(errors="replace") and not forzar:
+        previo = dst.read_text(errors="replace") if dst.exists() else ""
+        if previo and "baton/hooks/pre-commit" not in previo and "baton.py" not in previo and not forzar:
             raise BatonError(f"ya existe {dst} y no es de Baton: intégralo a mano o usa --forzar")
         dst.write_text("#!/bin/sh\n# Baton: solo actúa en ramas que tienen baton/ (el hook es común a todas las ramas)\n"
                        "[ -f baton/hooks/pre-commit ] || exit 0\nexec sh baton/hooks/pre-commit \"$@\"\n", encoding="utf-8")

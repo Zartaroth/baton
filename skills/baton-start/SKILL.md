@@ -61,37 +61,55 @@ El resultado es `baton/system/adr/ADR-0001-stack.md` (plantilla `baton/templates
 
 ## 3. Configurar
 
-Haz las preguntas **por grupos**, con preguntas interactivas (son decisiones con opciones). Cada grupo va con una propuesta ya rellenada a partir de la visión, del stack y de `detectar`, y explica en una línea por qué la recomiendas. El humano responde "sí" o corrige.
+**Todo este paso se pregunta con preguntas interactivas**, si tu entorno las tiene. Un "responde sí o corrige" en texto **no** cuenta como pregunta interactiva.
 
-1. **Tipo de backlog:**
-   - el **principal** define la plantilla de los ítems:
-     - `historia`: "Como… quiero… para…". Para producto con usuarios.
-     - `requerimiento`: "El sistema debe…". Para sistemas regulados, contratos o integraciones.
-     - `ticket`: problema o tarea. Para mantenimiento o soporte.
-   - los **auxiliares** siempre disponibles, por defecto `bug` y `tecnico`.
+1. Muestra primero tu propuesta completa en una tabla corta, como contexto: grupo, propuesta y por qué.
+2. Después haz **dos tandas de hasta 4 preguntas**. En cada pregunta, la opción 1 es tu propuesta, marcada "(Recomendado)" y con el motivo, y las demás son las alternativas reales.
 
-   Recomienda según el tipo de proyecto.
-2. **Cadencia:** kanban o scrum (con duración), y el `wip` (2 o 3 ítems en curso por persona).
-3. **Personas y modelos** (`entidades`) y **roles**. Propón esto por defecto:
+**Tanda A: cómo se trabaja**
+
+1. **Tipo de backlog principal.** El principal define la plantilla de los ítems:
+   - `historia`: "Como… quiero… para…". Para producto con usuarios.
+   - `requerimiento`: "El sistema debe…". Para sistemas regulados, contratos o integraciones.
+   - `ticket`: problema o tarea. Para mantenimiento o soporte.
+
+   Los auxiliares `bug` y `tecnico` van siempre, salvo que el humano diga otra cosa.
+2. **Cadencia y WIP:** kanban o scrum (con duración), y el `wip` (2 o 3 ítems en curso por persona).
+3. **Autonomía:** Pair revisa cada slice, Checkpoint cada ítem y Delegado el módulo completo. Recomienda según la visión: si hay datos sensibles, dinero o un equipo nuevo en el flujo, Pair o Checkpoint. Ofrece `autonomia_minima` solo si las restricciones lo justifican, por ejemplo por regulación.
+4. **Verificador:** activo o desactivado, y con qué modelo. **Asígnale siempre una entidad, aunque quede desactivado:** si un módulo pasa a Delegado, se activa a la fuerza. Debe ser un modelo distinto del driver.
+
+**Tanda B: quién y con qué**
+
+5. **Personas, modelos y roles.** Por defecto:
    - navigator: la persona + un modelo razonador;
    - autor_tests: el modelo razonador, por subagente;
    - aprobador_tests: la persona;
-   - driver: un modelo implementador, en otra sesión;
-   - verificador: un modelo distinto del driver, o desactivado.
+   - driver: un modelo implementador, en otra sesión.
 
-   Si el humano propone que el driver apruebe o escriba tests de aceptación, explica la invariante que rompe y pide otra entidad.
-4. **Autonomía:** Pair revisa cada slice, Checkpoint cada ítem y Delegado el módulo completo. Recomienda según la visión: si hay datos sensibles, dinero o un equipo nuevo en el flujo, Pair o Checkpoint. Pregunta por una `autonomia_minima` solo si las restricciones lo justifican, por ejemplo por regulación.
-5. **Tests:**
+   Si el humano propone que el driver apruebe o escriba tests de aceptación, explica la invariante que rompe y ofrece alternativas.
+6. **Tests:**
    - la ruta de los tests de aceptación;
-   - los comandos (los de `detectar`, o los del stack recién elegido);
+   - los comandos (los de `detectar`, o los del stack elegido);
    - los archivos `protegidos`: la configuración del runner y las fixtures compartidas;
    - `slice_max`.
 
    Los tests que ya existen **no se congelan**: el lock solo cubre los tests de aceptación nuevos, que salen de criterios aprobados.
-6. **Herramienta externa:** ninguna, Jira, Trello o GitHub Issues.
-7. **Protección:** el hook de git (recomendado) y CODEOWNERS si hay remoto en GitHub o GitLab. El hook atrapa descuidos; la garantía fuerte es CODEOWNERS.
+7. **Herramienta externa:** ninguna, Jira, Trello o GitHub Issues.
+8. **Protección:** el hook de git (recomendado) y CODEOWNERS si hay remoto en GitHub o GitLab. El hook atrapa descuidos; la garantía fuerte es CODEOWNERS.
 
 Escribe `baton/config.md` desde `baton/templates/config.md`. Si el humano aceptó el hook, ejecuta `python3 baton/bin/baton.py init --hook [--codeowners "@usuario"]`.
+
+### Reglas que necesitas (no leas el código de `baton.py`)
+
+- **Invariantes:**
+  - el driver no puede ser autor ni aprobador de tests;
+  - autor y aprobador son entidades distintas;
+  - entre los aprobadores hay al menos una persona;
+  - el verificador es distinto del driver;
+  - Delegado activa el verificador.
+- **`protegidos`** puede listar archivos que todavía no existen: quedan cubiertos cuando se crean. Todo lo que está dentro de la ruta de tests de aceptación ya está cubierto.
+- **Hook:** `init --hook` instala en el directorio de hooks de git un `pre-commit` que llama a `baton/hooks/pre-commit`, y que no hace nada en ramas sin `baton/`. Si ya hay un hook de Baton, lo reemplaza. Si hay un hook ajeno, falla: pregunta al humano antes de usar `--forzar`.
+- **Para comprobar cualquier regla, ejecuta `python3 baton/bin/baton.py validar`**: dice qué está mal y por qué.
 
 ## 4. Mapa de módulos
 
@@ -108,7 +126,12 @@ El mapa de módulos es el **backlog base**: las grandes partes del sistema (épi
 
 1. Ejecuta `python3 baton/bin/baton.py validar` y corrige hasta que diga `ok`.
 2. Ejecuta `python3 baton/bin/baton.py sync --autor <persona> --motivo "inicio del proyecto" --ref baton-start`.
-3. Muestra un resumen: la visión en 3 líneas, el stack, la configuración clave y el mapa de módulos. Indica el siguiente paso: "abrir el módulo `<primero>`; escribe **`/baton`** (o "continúa")".
+3. Muestra el **cierre en tablas**, no en prosa:
+   - **Visión:** 3 líneas (qué, para quién, alcance) y la escala.
+   - **Stack:** una línea, y la ruta del ADR.
+   - **Configuración:** una tabla con backlog, cadencia y WIP, roles por entidad, autonomía, verificador, tests y protección.
+   - **Mapa de módulos:** la tabla de la sección "Mapa de módulos" de `baton/backlog/BACKLOG.md`, copiada tal cual.
+   - **Siguiente paso:** la salida de `python3 baton/bin/baton.py next --rol navigator`, y "escribe **`/baton`** (o "continúa")".
 4. Propón hacer commit, pero no lo hagas sin permiso.
 
 ## Actualizar (Baton ya instalado)
