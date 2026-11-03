@@ -63,8 +63,7 @@ El resultado es `baton/system/adr/ADR-0001-stack.md` (plantilla `baton/templates
 
 **Todo este paso se pregunta con preguntas interactivas**, si tu entorno las tiene. Un "responde sí o corrige" en texto **no** cuenta como pregunta interactiva.
 
-1. Muestra primero tu propuesta completa en una tabla corta, como contexto: grupo, propuesta y por qué.
-2. Después haz **dos tandas de hasta 4 preguntas**. En cada pregunta, la opción 1 es tu propuesta, marcada "(Recomendado)" y con el motivo, y las demás son las alternativas reales.
+Haz **dos tandas de hasta 4 preguntas**. En cada pregunta, la opción 1 es tu propuesta, marcada "(Recomendado)" y con el motivo, que sale de la visión. Las demás son las alternativas reales. No hace falta una tabla previa: el cierre muestra la configuración completa.
 
 **Tanda A: cómo se trabaja**
 
@@ -97,7 +96,7 @@ El resultado es `baton/system/adr/ADR-0001-stack.md` (plantilla `baton/templates
 7. **Herramienta externa:** ninguna, Jira, Trello o GitHub Issues.
 8. **Protección:** el hook de git (recomendado) y CODEOWNERS si hay remoto en GitHub o GitLab. El hook atrapa descuidos; la garantía fuerte es CODEOWNERS.
 
-Escribe `baton/config.md` desde `baton/templates/config.md`. Si el humano aceptó el hook, ejecuta `python3 baton/bin/baton.py init --hook [--codeowners "@usuario"]`.
+Escribe `baton/config.md` desde `baton/templates/config.md`. En `proyecto` va el nombre confirmado en el paso 1, no el de la carpeta. Si el humano aceptó el hook, ejecuta `python3 baton/bin/baton.py init --hook [--codeowners "@usuario"]`.
 
 ### Reglas que necesitas (no leas el código de `baton.py`)
 
@@ -127,12 +126,12 @@ El mapa de módulos es el **backlog base**: las grandes partes del sistema (épi
 1. Ejecuta `python3 baton/bin/baton.py validar` y corrige hasta que diga `ok`.
 2. Ejecuta `python3 baton/bin/baton.py sync --autor <persona> --motivo "inicio del proyecto" --ref baton-start`.
 3. Muestra el **cierre en tablas**, no en prosa:
-   - **Visión:** 3 líneas (qué, para quién, alcance) y la escala.
+   - **Visión:** el nombre del proyecto, 3 líneas (qué, para quién, alcance) y la escala.
    - **Stack:** una línea, y la ruta del ADR.
    - **Configuración:** una tabla con backlog, cadencia y WIP, roles por entidad, autonomía, verificador, tests y protección.
    - **Mapa de módulos:** la tabla de la sección "Mapa de módulos" de `baton/backlog/BACKLOG.md`, copiada tal cual.
    - **Siguiente paso:** la salida de `python3 baton/bin/baton.py next --rol navigator`, y "escribe **`/baton`** (o "continúa")".
-4. Propón hacer commit, pero no lo hagas sin permiso.
+4. Propón hacer commit con una pregunta interactiva. No lo hagas sin permiso.
 
 ## Actualizar (Baton ya instalado)
 

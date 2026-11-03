@@ -10,17 +10,41 @@ Empieza el 2026-11-03, alrededor de las 18:20. Las sesiones de este intento son 
 
 | Fase | Sesión/modelo | Costo (/cost) | ¿Como lo pensé? | Fricción |
 |---|---|---|---|---|
-| 1 · Inicio del proyecto | A · Opus | | | |
+| 1 · Inicio del proyecto | A · Opus · sesión `491c3426`, 18:12–18:21 (9 min) | (anotar /cost) | Sí: entendió antes de configurar, todas las decisiones llegaron interactivas, y el cierre fue en tablas | Nombre del proyecto tomado de la carpeta; la escala no ofrecía MVP |
 | 2 · Cambiar el mapa | A · Opus | | | |
 | 3 · `registro` (Delegado) | A · subagente · B Sonnet · C Haiku | | | |
 | 4 · `saldos` (Pair) | A · subagente · B Sonnet | | | |
 | 5 · Iterar | A · Opus | | | |
 | 6 · Ataques | terminal | 0 | | |
 
+## Resultado de cada verificación
+
+| Fase | | Verificación | Detalle |
+|---|---|---|---|
+| 1 | ✅ | El router anunció `Rol · Paso` y lanzó `baton-start`. | "Rol: humano + Navigator · Paso: iniciar proyecto · Sobre: baton-piloto". |
+| 1 | ⏭️ | "empecemos el proyecto", sin barra, activa el router. | no se probó. |
+| 1 | ✅ | Usó `detectar`, no exploró a mano ni leyó la metodología. | **D9 verificado:** no leyó el código de `baton.py`; solo las referencias y plantillas de la skill. |
+| 1 | ✅ | Entendió antes de configurar, en 2 rondas como máximo, con resumen y confirmación. | ronda 1 en texto; ronda 2 con el alcance propuesto en texto y 4 decisiones interactivas (escala, centavo, transferencias, alcance). Confirmó la visión con una pregunta interactiva. Escribió glosario y "Lo que no sabemos" (formato de montos, archivo del viaje, mayúsculas). |
+| 1 | ✅ | Forma de preguntar: decisiones interactivas, abiertas en texto. | **D7 verificado:** toda la configuración en dos tandas interactivas de 4 preguntas, con la recomendación primero. ⚠️ La escala no ofrecía MVP y tuviste que escribirlo (D17). |
+| 1 | ✅ | Stack después de la escala, 3 opciones con motivo, ADR con `## Revisar si`. | stdlib + JSON, Typer + SQLite, Go o Rust. 4 condiciones concretas para revisar. Agregó la arquitectura en tres capas a la visión. |
+| 1 | ✅ | Cada recomendación cita el contexto. | "Checkpoint: sin datos sensibles, pero es el primer proyecto con Baton y conviene calibrar"; "CODEOWNERS no aplica: no hay remoto". |
+| 1 | ❌ | El proyecto se llama `gastos`, no como la carpeta. | quedó `proyecto: baton-piloto`. Nunca preguntó ni propuso un nombre (D16). |
+| 1 | ⏭️ | Al pedir "que sonnet también apruebe tests", se niega y cita la invariante. | los roles llegaron como pregunta interactiva y elegiste la propuesta. La guía no decía cómo meter el pedido; ahora dice "Other" y se prueba en la fase 2. |
+| 1 | ✅ | Creó solo los módulos aceptados, en `Planificado`, con `## Objetivo`. | propuso `cuentas` y `liquidacion` (no `registro` y `saldos`); la guía de las fases 2 y 4 se adaptó. |
+| 1 | ✅ | `validar` da `ok`, existe el hook, y `HISTORY.md` registra visión, ADR, configuración y módulos con motivo. | **D10 verificado:** `init --hook` instaló sin errores. **D11 verificado:** el verificador quedó desactivado con entidad `claude-haiku-5-5`, ofrecida como opción. |
+| 1 | ✅ | Resumen final en tablas, con qué sigue. | **D8 verificado:** tablas de visión, configuración y mapa (copiado de BACKLOG.md), la salida de `next` y las dudas abiertas. ⚠️ El objetivo de los módulos aparecía cortado a mitad de palabra ("ver e…"); corregido en `baton.py`. |
+| 1 | ✅ | Sin contaminación. | **D14 verificado:** no leyó nada fuera del piloto; la memoria del piloto está vacía. |
+
 ## Defectos
 
 | # | Fase | Qué pasó | Qué esperaba | Dónde se corrige (skill · baton.py · formato · metodología) |
 |---|---|---|---|---|
+| D16 | 1 | El proyecto quedó como `baton-piloto`, el nombre de la carpeta. Ningún paso de la skill pedía el nombre (regresión de D1) | Un nombre que salga del producto, propuesto y confirmado en el resumen de la visión | skill `baton-start` y `references/`. **Corregido** (sin verificar): sección "Nombre del proyecto", el nombre va en el resumen y en `proyecto` de `config.md`. En el piloto se corrige en la fase 2 |
+| D17 | 1 | La pregunta de escala ofreció 3 de las 5 escalas y no incluía MVP; tuviste que escribir "prototipo o MVP personal" | Las 4 escalas más cercanas a lo que contó el humano, o la combinación si duda | `references/proyecto-nuevo.md`. **Corregido** (sin verificar) |
+| — | 1 | No mostró la tabla de propuesta antes de las tandas de configuración, como pedía la skill. Las preguntas ya llevaban la propuesta y el motivo, y el cierre muestra todo | — | Se simplificó la skill: sin tabla previa |
+| — | 1 | Propuso el commit en texto | Una pregunta interactiva | skill `baton-start`, paso 5. **Corregido** |
+| — | 1 | El objetivo de los módulos en el mapa se cortaba a 60 caracteres, a mitad de palabra | Corte en un límite de palabra | `baton.py` (`corto`): 90 caracteres en el mapa y corte por palabra. Probado en e2e; copiado al piloto |
+| + | 1 | **Comportamiento bueno:** preguntó el reparto del centavo y las transferencias en la visión, antes de cualquier ítem; dejó las dudas restantes en "Lo que no sabemos" en vez de bloquear | — | — |
 
 ## Error sembrado
 

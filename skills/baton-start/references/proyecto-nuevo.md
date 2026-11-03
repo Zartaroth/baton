@@ -29,6 +29,8 @@
    - empezar pequeño pero poder crecer fácil;
    - gran escala desde el inicio.
 
+   La pregunta interactiva admite 4 opciones: ofrece las 4 más cercanas a lo que contó el humano. Si duda entre dos (por ejemplo, prototipo o MVP), ofrece también la combinación.
+
    Pregunta también por los usuarios esperados y el volumen de datos.
 4. **Restricciones:**
    - ¿maneja datos personales o dinero?
@@ -36,6 +38,10 @@
    - ¿plataformas obligatorias (web, móvil, CLI)?
    - ¿plazos o presupuesto?
    - ¿qué lenguajes o tecnologías conoce el equipo?
+
+## Nombre del proyecto
+
+Propón un nombre corto que salga **del producto**, no de la carpeta ni del repositorio (por ejemplo, `gastos` para una CLI de gastos). Si el producto es una CLI o un paquete, que sirva como nombre del comando o del paquete. Va en el resumen para confirmar y después en `proyecto` de `config.md`.
 
 ## Qué escribir
 
@@ -50,6 +56,7 @@ Completa `baton/system/overview.md` con `inicio: nuevo`:
 Muestra **como máximo 10 líneas**:
 
 ```
+Nombre: <nombre corto>.
 Entendí que vas a construir <qué> para <quién>, para <objetivo>.
 La primera versión hace <alcance> y no hace <fuera de alcance>.
 Escala: <escala>. Restricciones clave: <...>.

@@ -169,12 +169,17 @@ def aplanar(d, prefijo="") -> dict:
     return res
 
 
-def corto(v) -> str:
+def corto(v, maximo: int = 60) -> str:
     if v is None:
         return "–"
     s = v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)
-    s = s.replace("\n", " ")
-    return s if len(s) <= 60 else s[:57] + "…"
+    s = " ".join(s.split())
+    if len(s) <= maximo:
+        return s
+    recorte = s[:maximo - 1]
+    if " " in recorte:
+        recorte = recorte[:recorte.rfind(" ")]
+    return recorte.rstrip(" ,.;:") + "…"
 
 
 def celda(s) -> str:
@@ -1006,7 +1011,7 @@ def generar_backlog(pr: Proyecto) -> str:
         hechos = sum(1 for i in suyos if pr.items[i]["fm"].get("estado") == "Hecho")
         objetivo = secciones(pr.modulos[m]["body"]).get("Objetivo", "")
         lineas.append(f"| {m} | {fm.get('estado')} | {fm.get('prioridad', '–')} | {aut} | "
-                      f"{f'{hechos}/{len(suyos)}' if suyos else '–'} | {celda(corto(objetivo))} |")
+                      f"{f'{hechos}/{len(suyos)}' if suyos else '–'} | {celda(corto(objetivo, 90))} |")
     lineas.append("")
 
     activos = [i for i in pr.items if pr.items[i]["fm"].get("estado") not in ("Candidato", "Hecho", "Descartado")]

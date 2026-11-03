@@ -26,6 +26,10 @@ Las preguntas 1 y 2 son abiertas, en texto. La 3 y la 4 son de opciones: hazlas 
 3. ¿La escala y las restricciones cambian respecto de hoy? Las opciones de escala están en `proyecto-nuevo.md`, ronda 2.
 4. Si `detectar` encontró issues o TODO: **¿quieres importarlos como candidatos?** Por defecto, no.
 
+## Nombre del proyecto
+
+Toma el nombre del manifiesto o del README. Si no hay, propón uno corto que salga del producto, no de la carpeta. Va en el resumen para confirmar.
+
 ## Qué escribir
 
 Completa `baton/system/overview.md` con `inicio: existente`:
