@@ -23,6 +23,7 @@ description: Rol Autor de tests de la metodología Baton. Convierte los criterio
    - **Vale:** el assert falla, o falla porque la funcionalidad no existe (404, función o módulo de producción inexistente).
    - **No vale:** un error de sintaxis o de importación *del propio test*, una fixture rota o un error de entorno.
    - **Si un test pasa sin código nuevo**, el test es débil o la funcionalidad ya existe. Corrígelo o explícalo en el traspaso.
+   - **Si dudas de que un test se pueda poner en verde** (criterios que parecen contradecirse, un dato que no cuadra), puedes comprobarlo con una implementación desechable **fuera del repositorio** (en tu scratchpad o un directorio temporal) y borrarla al terminar. Avísalo en el traspaso, con lo que encontraste. Si confirma una contradicción, no la resuelvas tú: descríbela en el traspaso para que la decida el humano. Por defecto no lo hagas: gasta tokens.
 6. Ejecuta `python3 baton/bin/baton.py estado <ítem> TestsEnRevision`.
 7. Ejecuta `python3 baton/bin/baton.py handoff --item <ítem> --de autor_tests --para aprobador_tests`. En `## Tests del slice` (o una tabla nueva, `## Rojo verificado`), pon por cada test: nombre, criterio, resultado y **la razón del fallo** copiada de la salida.
 8. Ejecuta `python3 baton/bin/baton.py sync --autor <entidad> --motivo "tests de <ítem> escritos"`.
@@ -33,6 +34,6 @@ Cambia solo los tests que lista `afecta` en la solicitud. Indica en el traspaso 
 
 ## No hagas
 
-- No escribas código de producción, ni siquiera "para que compile".
+- No escribas código de producción en el repositorio, ni siquiera "para que compile". La única excepción es la implementación desechable del paso 5, siempre fuera del repositorio.
 - No toques archivos que ya están en `baton/acceptance.lock` sin una solicitud aprobada. El hook rechazará el commit.
 - No apruebes tus propios tests.

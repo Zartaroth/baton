@@ -194,11 +194,13 @@ También instala `baton.py` y el hook. Se puede volver a ejecutar para actualiza
 
 **Cambiar el mapa:** agregar, dividir, fusionar, repriorizar o descartar módulos, y aceptar los candidatos que proponga el agente. Siempre con motivo.
 
-**Abrir un módulo** sigue el mismo patrón que el proyecto, a menor escala:
+**Abrir un módulo** sigue el mismo patrón que el proyecto, a menor escala. El agente prepara tres cosas:
 
 1. **Entender:** objetivo, alcance, fuera de alcance, riesgos, y los ADR y contratos que aplican. Es la "spec" de SDD, pero corta.
-2. **Configurar:** muestra la configuración heredada y pregunta "¿mantener o cambiar?" por grupo. El agente **recomienda** según el riesgo: pagos, seguridad o migraciones → Pair; un CRUD simple → Delegado. Si el humano elige menos control que el recomendado, el agente lo advierte una vez y anota el riesgo. El humano decide. En `module.md` solo se guardan las diferencias, cada una con su motivo.
-3. **Ítems:** el agente propone la lista (verticales y que cumplan INVEST). El humano corrige, quita, agrega y prioriza. Los aceptados quedan `Pendiente`.
+2. **Configurar:** el agente **recomienda** según el riesgo: pagos, seguridad o migraciones → Pair; un CRUD simple → Delegado. Si el humano elige menos control que el recomendado, el agente lo advierte una vez y anota el riesgo. El humano decide. En `module.md` solo se guardan las diferencias, cada una con su motivo.
+3. **Ítems:** la lista propuesta, con ítems verticales que cumplan INVEST.
+
+Primero pregunta lo que no puede deducir. Después muestra las tres cosas juntas y el humano las aprueba **una vez**: corrige, quita, agrega o prioriza antes de aprobar. Los ítems aceptados quedan `Pendiente`.
 
 Se puede volver a ejecutar a mitad del módulo: el cambio aplica desde el siguiente slice y queda en el historial.
 
@@ -276,6 +278,7 @@ stateDiagram-v2
     [*] --> Pendiente: humano agrega
     Candidato --> Pendiente: humano acepta
     Candidato --> Descartado
+    Pendiente --> Candidato: humano lo deja para después
     Pendiente --> Listo: Navigator detalla (criterios + slices)
     Listo --> TestsEnRevision: Autor de tests escribe
     TestsEnRevision --> Listo: Aprobador rechaza

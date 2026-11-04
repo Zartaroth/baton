@@ -67,9 +67,11 @@ Empieza el 2026-11-03, alrededor de las 18:20. Las sesiones de este intento son 
 | D19 | 3 | `baton-item` pidió aprobar los criterios y los slices sin mostrarlos, y en la misma tanda que dos decisiones que los cambiaban | Primero las decisiones, después el bloque compacto en texto, y al final la aprobación | skill `baton-item` §3. **Corregido** (sin verificar) |
 | D20 | 3 | `archivos_tests` incluía los `.pyc` de `__pycache__`: el lock los habría congelado y fallado en la ejecución siguiente | Ignorar `__pycache__` y `.pyc` | `baton.py`. **Corregido y probado en e2e**; copiado al piloto |
 | D21 | 3 | `baton-approve` no presentó cada criterio junto a su test: te pidió "Apruebo" sin que vieras los tests | Una tabla por criterio (Entonces, asserts clave, observación) en texto antes de preguntar | skill `baton-approve`. **Corregido** (sin verificar) |
-| D22 | 3 | El hook rechaza el commit de la aprobación si los tests no se commitearon antes con el ítem en `TestsEnRevision`. Ninguna skill pide ese commit intermedio | Que el flujo normal no choque con el hook | **Decisión pendiente** |
+| D22 | 3 | El hook rechaza el commit de la aprobación si los tests no se commitearon antes con el ítem en `TestsEnRevision`. Ninguna skill pide ese commit intermedio | Que el flujo normal no choque con el hook | **Decidido: relajar el primer congelado.** Basta con que el ítem no estuviera congelado en el commit anterior; el driver sigue bloqueado. `baton.py` y FORMATOS §6.3. **Corregido y probado en e2e** (primer congelado sin commit intermedio pasa; un test nuevo de un ítem congelado se rechaza) |
 | D23 | 3 | Con `/baton` y `baton-module` ya cargada, no anunció `Rol · Paso · Sobre` | Anunciarlo siempre | skill `baton`. **Corregido** (sin verificar) |
-| — | 3 | Pasar un ítem de `Pendiente` a `Candidato` ("mejor déjalo para después") exige `--forzar` | — | **Decisión pendiente** |
+| — | 3 | Pasar un ítem de `Pendiente` a `Candidato` ("mejor déjalo para después") exige `--forzar` | — | **Decidido: se permite.** `baton.py` y diagrama de estados. Probado en e2e |
+| — | 3 | El autor de tests escribió una implementación desechable para comprobar que los tests se pueden poner en verde | — | **Decidido: solo si duda**, fuera del repositorio y avisándolo en el traspaso. Skill `baton-tests` |
+| — | 3 | Al abrir el módulo escribió alcance y riesgos sin mostrarlos | — | **Decidido: una sola confirmación.** `baton-module` B: preguntas abiertas → propuesta completa (alcance, riesgos, configuración, ítems) en texto → una aprobación. También en METODOLOGIA §4.3 |
 | + | 2 | **Comportamiento bueno:** ante "agrega `exportar`", detectó el módulo candidato con el mismo nombre y ofreció fusionarlos | — | — |
 
 ## Error sembrado

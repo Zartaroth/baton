@@ -49,45 +49,45 @@ Al terminar, ejecuta `baton.py sync` **con el motivo de cada cambio** y muestra 
 
 ## B. Abrir un módulo
 
-Por defecto, el siguiente `Planificado` por prioridad.
+Por defecto, el siguiente `Planificado` por prioridad. Se prepara todo y se aprueba **una sola vez**, como en `baton-item`: preguntas abiertas → propuesta completa a la vista → una aprobación.
 
-### 1. Entender
+### 1. Preparar la propuesta
 
-Es la "spec" del módulo, pero corta.
+1. **Entender.** A partir de la visión y del `## Objetivo`, prepara `## Alcance`, `## Fuera de alcance`, `## Riesgos` y `## Referencias` (ADR y contratos que aplican). Para los riesgos, evalúa si el módulo:
+   - mueve dinero o datos personales;
+   - toca autenticación o permisos;
+   - migra datos;
+   - integra servicios externos;
+   - es reversible;
+   - es una zona donde el equipo tiene poca experiencia.
 
-- A partir de la visión y del `## Objetivo`, propón `## Alcance`, `## Fuera de alcance`, `## Riesgos` y `## Referencias` (ADR y contratos que aplican).
-- Pregunta lo que no puedas deducir, en una sola ronda.
-- Para los riesgos, evalúa si el módulo:
-  - mueve dinero o datos personales;
-  - toca autenticación o permisos;
-  - migra datos;
-  - integra servicios externos;
-  - es reversible;
-  - es una zona donde el equipo tiene poca experiencia.
-- Si el módulo necesita una decisión de diseño nueva, propónla como ADR (`baton/templates/adr.md`).
-- Muestra un resumen de 5 líneas como máximo y pide confirmación.
-
-### 2. Configurar
-
-1. Muestra la configuración heredada con `baton.py efectiva modulo:<m>`, en tres grupos: roles, autonomía y verificador, y tamaño de slice.
-2. **Recomienda según el riesgo**, con el motivo en una línea. Por ejemplo: pagos, seguridad o migraciones → Pair; CRUD interno → Delegado.
-3. Para cada grupo, pregunta "¿mantener o cambiar?".
-4. **Si el humano elige menos control que el recomendado,** avísale **una vez** con el riesgo concreto, anótalo en `## Riesgos` y respeta su decisión. Bajar el control está permitido. Solo comprueba que no quede bajo `autonomia_minima`.
-5. En `config` van **solo las diferencias**, cada una como `{ valor, motivo, desde: <hoy> }`. Si la autonomía queda en Delegado, el verificador se activa solo: confirma que haya una entidad asignada.
-
-### 3. Definir los ítems del módulo
-
-1. Propón la lista en una tabla con id, tipo, título, una línea de propósito y prioridad.
+   Si necesita una decisión de diseño nueva, propónla como ADR (`baton/templates/adr.md`).
+2. **Configurar.** Consulta la configuración heredada con `baton.py efectiva modulo:<m>` y **recomienda según el riesgo**, con el motivo en una línea. Por ejemplo: pagos, seguridad o migraciones → Pair; CRUD interno → Delegado. Roles y tamaño de slice se mantienen salvo que el riesgo pida otra cosa.
+3. **Ítems.** Prepara la lista:
    - Usa el **tipo principal** de `config.md` (`backlog.principal`). Usa los auxiliares (`bug`, `tecnico`) solo cuando corresponda.
    - Incluye los ítems semilla que ya existan con ese `modulo`, y los ítems sin módulo que encajen.
    - Divide en ítems **verticales**, que entregan algo usable, y no por capas.
    - Revisa que cada ítem cumpla **INVEST**: independiente, negociable, valioso, estimable, pequeño y testeable. Si un ítem parece de más de unos 6 criterios, propón dividirlo.
-2. El humano corrige, edita, quita, agrega y prioriza.
-3. Lo que **acepte** se crea como ítem ligero desde `baton/templates/item-<tipo>.md`:
-   - el frontmatter completo y la sección de propósito en una línea;
-   - `estado: Pendiente` (aceptado para desarrollo);
-   - el id con el siguiente número libre de su prefijo.
-4. Lo que quiera guardar sin aceptar todavía queda en `Candidato`. Lo que rechace no se crea.
+
+### 2. Preguntas abiertas (si las hay)
+
+Lo que no puedas deducir (dudas de negocio de la visión que este módulo necesita, la autonomía si hay alternativas reales) va **primero**, en una tanda interactiva. No incluyas la aprobación en esa tanda: sus respuestas cambian la propuesta.
+
+### 3. Mostrar y aprobar una vez
+
+1. **Muestra en un mensaje de texto** la propuesta completa, ya con las respuestas aplicadas:
+   - **Alcance** y **fuera de alcance**: 2 o 3 líneas cada uno.
+   - **Riesgos:** los que encontraste, en una línea cada uno.
+   - **Configuración:** la autonomía y el verificador recomendados, con el motivo, y lo que cambia respecto del proyecto (marca ↓ si baja el control).
+   - **Ítems:** una tabla con id, tipo, título, una línea de propósito y prioridad.
+
+   Lo que solo pensaste y no mostraste no cuenta: el humano no lo ve.
+2. **Pide la aprobación** con una pregunta interactiva: "Apruebo", "Ajustar…" y, si aplica, "Dejar algún ítem como candidato". Ajusta hasta que apruebe.
+3. **Si el humano elige menos control que el recomendado,** avísale **una vez** con el riesgo concreto, anótalo en `## Riesgos` y respeta su decisión. Bajar el control está permitido. Solo comprueba que no quede bajo `autonomia_minima`.
+4. Recién entonces escribe:
+   - `module.md`: las secciones, y en `config` **solo las diferencias**, cada una como `{ valor, motivo, desde: <hoy> }`. Si la autonomía queda en Delegado, el verificador se activa solo: confirma que haya una entidad asignada;
+   - los ítems **aceptados**, como ítems ligeros desde `baton/templates/item-<tipo>.md`: el frontmatter completo, la sección de propósito en una línea, `estado: Pendiente` y el siguiente número libre de su prefijo;
+   - los que el humano quiera guardar para después, en `Candidato`. Lo que rechace no se crea.
 
 ### 4. Activar y registrar
 

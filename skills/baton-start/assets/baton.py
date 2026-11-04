@@ -46,12 +46,14 @@ TURNO = {
     "EnVerificacion": "verificador", "EnRevision": "navigator",
 }
 WIP_ESTADOS = {"EnCurso", "Escalado", "EnVerificacion", "EnRevision"}
+# Estados (en el commit anterior) desde los que se puede congelar un test por primera vez.
+PRE_CONGELADO = (None, "Pendiente", "Listo", "TestsEnRevision")
 # Estados en los que el ítem ya pasó la Definition of Ready.
 POST_DOR = {"Listo", "TestsEnRevision", "TestsCongelados", "EnCurso", "Escalado",
             "EnVerificacion", "EnRevision", "Hecho"}
 TRANSICIONES = {
     "Candidato": {"Pendiente", "Descartado"},
-    "Pendiente": {"Listo", "Descartado"},
+    "Pendiente": {"Listo", "Candidato", "Descartado"},
     "Listo": {"TestsEnRevision", "Pendiente"},
     "TestsEnRevision": {"Listo", "TestsCongelados"},
     "TestsCongelados": {"EnCurso"},
@@ -1308,10 +1310,16 @@ def lock_revisar(pr: Proyecto, staged: bool, base_ref: str | None) -> list[str]:
                 if estado_solicitud(sol, ref_actual) not in ("Aprobada", "Aplicada"):
                     problemas.append(f"lock: {arch} cambió con la solicitud {sol}, que no está Aprobada")
                 continue
+            # Primer congelado (el archivo no estaba en el lock): basta con que el ítem todavía no
+            # estuviera congelado en el commit anterior. Así no hace falta un commit intermedio en
+            # TestsEnRevision, y el driver sigue bloqueado: sus ítems ya están congelados.
+            primero = arch not in lock_base
+            previos = ("TestsEnRevision",) + (PRE_CONGELADO if primero else ())
             if fila["item"] == "*":
-                ok = any(estado_item(i, base_ref) == "TestsEnRevision" for i in pr.items) or not lock_base
+                ok = not lock_base or any(estado_item(i, base_ref) in previos
+                                          and estado_item(i, ref_actual) == "TestsCongelados" for i in pr.items)
             else:
-                ok = estado_item(fila["item"], base_ref) == "TestsEnRevision"
+                ok = estado_item(fila["item"], base_ref) in previos
             if not ok:
                 problemas.append(f"lock: {arch} cambió sin solicitud aprobada y su ítem no venía de TestsEnRevision")
         for arch in sorted(set(lock_base) - set(lock)):

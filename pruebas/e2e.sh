@@ -76,6 +76,37 @@ creado: 2026-11-03
 ---
 MD
 python3 baton/bin/baton.py efectiva US-004 | grep -A1 "verificador_activo" | grep -q "valor: true" && ok "Delegado fuerza verificador" || bad "verificador no forzado"
+# primer congelado sin commit intermedio en TestsEnRevision (D22)
+cat >> baton/backlog/items/US-004.md <<'MD'
+
+## Valor
+Como cliente quiero ver la ficha para decidir.
+
+## Criterios de aceptación
+
+### AC-1 · Ficha con precio
+- **Dado** un producto de $10
+- **Cuando** abro su ficha
+- **Entonces** veo "$10"
+
+## Seguridad
+sin impacto
+
+## Preguntas abiertas
+MD
+printf -- '---\nformato: 1\nitem: US-004\nversion: 1\nslices:\n  - id: S1\n    titulo: "Esqueleto: ficha"\n    criterios: [AC-1]\n---\n## S1 · Esqueleto\n' > baton/modules/catalogo/plans/US-004.md
+python3 baton/bin/baton.py estado US-004 Listo >/dev/null
+printf 'import unittest\nclass T(unittest.TestCase):\n    def test_US_004_AC_1_ficha(self): self.fail("no implementado")\n' > tests/acceptance/catalogo/US_004_ficha_test.py
+python3 baton/bin/baton.py estado US-004 TestsEnRevision >/dev/null
+python3 baton/bin/baton.py lock aprobar --item US-004 --aprobado-por juan >/dev/null && python3 baton/bin/baton.py estado US-004 TestsCongelados >/dev/null
+python3 baton/bin/baton.py sync --autor juan --motivo "aprobación inicial" >/dev/null
+git add -A && git commit -qm "US-004 aprobado" >/dev/null 2>&1 && ok "primer congelado sin commit intermedio pasa el hook" || bad "primer congelado rechazado sin commit intermedio"
+printf 'import unittest\nclass T(unittest.TestCase):\n    def test_US_001_AC_1_extra(self): pass\n' > tests/acceptance/catalogo/US_001_extra_test.py
+H=$(sha256sum tests/acceptance/catalogo/US_001_extra_test.py | cut -d' ' -f1)
+echo "tests/acceptance/catalogo/US_001_extra_test.py  $H  US-001  AC-1  juan  2026-11-03  -" >> baton/acceptance.lock
+git add -A; git commit -qm hack4 >/dev/null 2>&1 && bad "congeló un test nuevo de un ítem ya congelado" || ok "rechaza congelar un test nuevo de un ítem ya congelado"
+git reset -q --hard HEAD; git clean -qfd
+python3 baton/bin/baton.py estado US-002 Candidato >/dev/null 2>&1 && python3 baton/bin/baton.py estado US-002 Pendiente >/dev/null && ok "Pendiente → Candidato (para después) y de vuelta" || bad "Pendiente → Candidato rechazado"
 # flujo de inicio: visión, mapa de módulos y tipos de backlog
 mkdir -p baton/system && cp $FX/../../skills/baton-start/assets/templates/overview.md baton/system/overview.md
 python3 baton/bin/baton.py sync --autor juan --motivo "visión inicial" >/dev/null

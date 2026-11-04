@@ -417,7 +417,9 @@ pytest.ini                                       0c9d…e7  *       -          j
 
 1. Cada archivo del lock existe y su sha256 coincide.
 2. Un archivo nuevo en una ruta protegida solo se acepta si su nombre empieza con el id de un ítem en `Listo` o `TestsEnRevision` (es decir, el Autor de tests está trabajando). Si es un archivo compartido nuevo, o un archivo de otro ítem, se rechaza.
-3. Cada línea del lock nueva o modificada corresponde a un ítem en `TestsEnRevision` (primera aprobación) o tiene en `solicitud` el id de una solicitud en estado `Aprobada`.
+3. Cada línea nueva o modificada del lock cumple una de estas condiciones:
+   - **Primer congelado** (el archivo no estaba en el lock): en el commit anterior, su ítem todavía no estaba congelado (no existía, o estaba en `Pendiente`, `Listo` o `TestsEnRevision`). No hace falta un commit intermedio en `TestsEnRevision`. El Driver no puede usar esta vía, porque sus ítems ya están congelados.
+   - **Cambio de una línea existente:** el ítem venía de `TestsEnRevision`, o la línea tiene en `solicitud` el id de una solicitud `Aprobada`.
 
 **Límite conocido:** el hook se puede saltar con `git commit --no-verify`, y un agente puede escribir una solicitud marcada como `Aprobada`. El hook atrapa descuidos. La garantía fuerte está en el servidor: una regla de CODEOWNERS (o su equivalente) que exige la revisión de un aprobador humano en todo PR que toque las rutas protegidas, `acceptance.lock` o `baton/config.md`. Setup debe ofrecer generarla.
 
