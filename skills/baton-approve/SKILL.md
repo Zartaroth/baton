@@ -12,14 +12,23 @@ El agente **prepara la revisión y ejecuta los comandos**, pero **no aprueba**. 
 ## Pasos
 
 1. Busca el traspaso con `python3 baton/bin/baton.py next --rol aprobador_tests` y márcalo con `tomar`.
-2. **Presenta cada criterio junto a sus tests:** el Dado/Cuando/Entonces a un lado y el código del test al otro. Por cada par, revisa esto y marca lo que encuentres:
+2. **Presenta cada criterio junto a sus tests, en un mensaje de texto, antes de preguntar.** Es lo que la persona aprueba: sin esto, la aprobación no vale. Usa una tabla con una fila por criterio:
+
+   | Criterio | Entonces (del ítem) | Qué comprueba el test (asserts clave, con sus valores) | Observación |
+   |---|---|---|---|
+
+   - No omitas ningún criterio, aunque sean muchos. Si un test tiene varios casos (`parametrize`), lista los valores.
+   - Si la persona pide ver el código de un test, muéstralo completo.
+   - Lo que leíste o pensaste sin mostrarlo no cuenta: la persona no lo ve.
+
+   Por cada par, revisa esto y anota lo que encuentres en "Observación":
    - ¿El test comprueba exactamente el **Entonces**, ni más ni menos?
    - ¿Se puede implementar sin conocer detalles internos que todavía no existen?
    - ¿Tiene mocks del sistema que se prueba, `skip`, asserts débiles o datos ambiguos?
    - ¿El rojo verificado del traspaso falla por la razón correcta?
    - ¿Falta algún caso de los criterios?
 3. Vuelve a ejecutar el archivo con `comandos.aceptacion_archivo` y confirma que el rojo coincide con el del traspaso.
-4. Pregunta a la persona: **¿apruebas o rechazas?**
+4. Después de la tabla, pregunta a la persona: **¿apruebas o rechazas?** Si tu entorno tiene preguntas interactivas (en Claude Code, `AskUserQuestion`), úsalas con las opciones "Apruebo" y "Rechazo (te digo por qué)". La respuesta tiene que ser explícita: nunca la des por supuesta.
 
 ### Si aprueba
 

@@ -6,7 +6,7 @@ Evolución de SDD (Spec-Driven Development). Su objetivo es que el trabajo con a
 
 Se inspira en las prácticas que mejor funcionaban antes de los agentes: backlog ágil, slices verticales, TDD y pair programming.
 
-> Estado: versión 0.3 (2026-11-03). Los formatos de archivo están en [FORMATOS.md](FORMATOS.md) y las skills del núcleo en [skills/](skills/README.md). Pasos siguientes: probar con un proyecto real → `verify`, `review` y adaptadores → app visual.
+> Estado: versión 0.4.1 (2026-11-04). Los formatos de archivo están en [FORMATOS.md](FORMATOS.md) y las skills del núcleo en [skills/](skills/README.md). Pasos siguientes: probar con un proyecto real → `verify`, `review` y adaptadores → app visual.
 
 ---
 
@@ -19,6 +19,7 @@ Se inspira en las prácticas que mejor funcionaban antes de los agentes: backlog
 5. **El repositorio es el canal.** Todo estado, decisión y traspaso queda en archivos versionados. Ningún rol depende de la memoria de otro, así que cada rol puede estar en un agente, sesión o herramienta distinta.
 6. **Todo cambio tiene motivo.** Ningún cambio de alcance, de configuración ni de test congelado ocurre sin quedar registrado.
 7. **Modular.** Cada etapa consume y produce archivos definidos. Para saltarse una etapa, basta con dar su archivo a mano.
+8. **Entender antes de decidir.** Ninguna recomendación de stack, autonomía o configuración se hace sin haber entendido antes qué se construye, o desde dónde se parte. Las recomendaciones siguen las prácticas de la industria y se justifican con el contexto del proyecto.
 
 ---
 
@@ -28,7 +29,17 @@ Se inspira en las prácticas que mejor funcionaban antes de los agentes: backlog
 
 **Problema en SDD:** pide la spec completa desde el inicio y genera muchos documentos (spec, plan, research, data-model, contracts, quickstart, tasks) que hay que validar juntos. Cambiar algo obliga a corregirlo en todos ellos, y se pierde el control de lo que se diseña.
 
-**Propuesta:** la fuente de verdad del producto es un backlog de ítems pequeños y autocontenidos: una historia de usuario, un requisito o un ticket. Cada ítem tiene:
+**Propuesta:** la fuente de verdad del producto es un backlog de ítems pequeños y autocontenidos. El proyecto elige un **tipo principal**, que define la plantilla de los ítems:
+
+| Tipo principal | Forma | Para |
+|---|---|---|
+| Historia de usuario | "Como… quiero… para…" | producto con usuarios |
+| Requerimiento | "El sistema debe…" | sistemas regulados, contratos, integraciones |
+| Ticket | problema o tarea | mantenimiento, soporte |
+
+Además, siempre están disponibles los tipos **auxiliares** `bug` y `técnico`, como en los tipos de issue de cualquier equipo. Todos usan criterios *Dado / Cuando / Entonces*, porque los tests salen de ellos.
+
+Cada ítem tiene:
 
 - id;
 - valor que aporta;
@@ -39,12 +50,18 @@ Se inspira en las prácticas que mejor funcionaban antes de los agentes: backlog
 
 Cambiar algo es editar un ítem, no N documentos.
 
-El detalle se trabaja **justo a tiempo**. Al inicio solo hay una visión del sistema y un backlog ligero (títulos y prioridad). Los criterios, los tests y los slices de un ítem se escriben cuando ese ítem está por desarrollarse.
+El detalle se trabaja **justo a tiempo**, en tres niveles:
+
+1. **Al inicio:** solo hay una **visión** del sistema y un **mapa de módulos**: las grandes partes o épicas, con prioridad. Es el *story map* de la industria. Nadie conoce todos los módulos al empezar, así que el mapa se edita en cualquier momento: se agregan, dividen, fusionan o descartan módulos, siempre con motivo.
+2. **Al abrir un módulo:** se definen sus ítems.
+3. **Cuando un ítem está por desarrollarse:** se escriben sus criterios, tests y slices.
+
+Es lo que Scrum llama un backlog *DEEP*: detallado en la medida justa, emergente, estimado y priorizado.
 
 Dos cosas que cambian a distinto ritmo van separadas:
 
 - **Backlog:** qué hace el sistema. Cambia mucho.
-- **Mapa del sistema:** arquitectura, contratos y decisiones (ADR: una nota corta por decisión con contexto, decisión y consecuencias). Cambia poco y crece agregando entradas.
+- **Visión y decisiones:** propósito, alcance, escala, restricciones y arquitectura (`system/overview.md`), más una nota corta por decisión (ADR: contexto, opciones, decisión, consecuencias y cuándo revisarla). Cambia poco y crece agregando entradas.
 
 **Backlog actual e histórico** (detalle en la sección 6):
 
@@ -134,17 +151,18 @@ Dos cosas que cambian a distinto ritmo van separadas:
 Proyecto → Módulo → Ítem → Slice
 ```
 
-- **Proyecto:** el sistema completo.
-- **Módulo:** la parte del sistema que se desarrolla como bloque (lo que en SDD sería una spec o feature). Agrupa ítems.
-- **Ítem:** historia de usuario, requisito o ticket.
+- **Proyecto:** el sistema completo. Tiene una visión y un mapa de módulos.
+- **Módulo:** una parte del sistema que se desarrolla como bloque (una épica o feature, lo que en SDD sería una spec). Agrupa ítems.
+- **Ítem:** del tipo principal del proyecto (historia, requerimiento o ticket) o de un tipo auxiliar (bug, técnico).
 - **Slice:** incremento vertical de un ítem.
 
 ### 4.1 Capas que heredan
 
 La configuración se define en capas. Cada nivel **guarda solo lo que cambia** respecto del anterior. La **configuración efectiva** es la suma proyecto + módulo + ítem. Si cambia un valor por defecto del proyecto, ese cambio llega a todos los módulos que no lo sobrescribieron.
 
-| Variable | Proyecto (setup) | Módulo (kickoff) | Ítem |
+| Variable | Proyecto (`baton-start`) | Módulo (`baton-module`) | Ítem |
 |---|---|---|---|
+| Tipo de backlog: principal y auxiliares | ✔ | – | – |
 | Cadencia: flujo continuo (Kanban) o iteraciones (Scrum) y su duración | ✔ | – | – |
 | Límite de ítems en curso | ✔ | – | – |
 | Herramienta externa (Jira, Trello, GitHub Issues) | ✔ | – | – |
@@ -156,29 +174,37 @@ La configuración se define en capas. Cada nivel **guarda solo lo que cambia** r
 | Verificador activo | ✔ | ✔ | solo activar (forzado en Delegado) |
 | Tamaño máximo de slice | ✔ | ✔ | – |
 
-### 4.2 Setup (proyecto)
+### 4.2 Inicio del proyecto (`baton-start`)
 
-Es la primera skill que se ejecuta. Pregunta y guarda las variables del proyecto en `baton/config.md`:
+Se ejecuta una vez y sigue el orden **entender → escala y stack → configurar → mapa de módulos**. Cada paso usa lo decidido en el anterior.
 
-- cadencia;
-- límite de ítems en curso;
-- roles por defecto;
-- autonomía por defecto y autonomía mínima (opcional);
-- herramienta externa;
-- comandos de test.
+1. **Detectar** (con `baton.py`, sin gastar tokens): si el proyecto es nuevo o existente, el stack, los tests y los comandos.
+2. **Entender:**
+   - **Proyecto nuevo:** una entrevista corta (qué es, para quién, objetivo, alcance inicial, qué no es, escala, restricciones), inspirada en el *inception* de producto.
+   - **Proyecto existente:** un análisis acotado (manifiestos, estructura, puntos de entrada, datos, tests), un resumen con lo que no se pudo confirmar, y la pregunta de hacia dónde se quiere ir.
 
-También crea la estructura de carpetas e instala el hook de protección de tests. Se puede volver a ejecutar para cambiar valores, y cada cambio queda registrado con su motivo.
+   El agente escribe la visión y el humano la confirma o la corrige.
+3. **Escala y stack:** según la escala (prototipo, MVP, producto pequeño, empezar pequeño y migrar fácil, gran escala) y las restricciones, el agente recomienda el stack y el humano decide. La decisión queda como ADR-0001, con las condiciones concretas para revisarla. En proyectos existentes, el stack ya está dado.
+4. **Configurar:** las variables de la tabla anterior, recomendadas con el contexto del proyecto, y guardadas en `baton/config.md`.
+5. **Mapa de módulos:** el backlog base, con ítems semilla opcionales. Si hay issues o TODO, el agente ofrece importarlos como candidatos.
 
-### 4.3 Kickoff (módulo)
+También instala `baton.py` y el hook. Se puede volver a ejecutar para actualizar la visión, el stack o la configuración, y cada cambio queda registrado con su motivo.
 
-Se ejecuta al empezar un módulo.
+### 4.3 Módulos (`baton-module`)
 
-1. Muestra la configuración **heredada**. No pregunta todo desde cero, solo "¿mantener o cambiar?" por grupo.
-2. El agente del Navigator **recomienda** según el riesgo del módulo. Por ejemplo, pagos, seguridad o migraciones de datos → Pair; un CRUD simple → Delegado. Si el humano elige menos control que el recomendado, el agente lo advierte una vez y anota el riesgo en `module.md`. El humano decide.
-3. Guarda en `baton/modules/<módulo>/module.md` solo las diferencias, cada una con su motivo, junto con el alcance del módulo.
-4. Se puede volver a ejecutar a mitad del módulo. El cambio aplica desde el siguiente slice y queda en el historial.
+**Cambiar el mapa:** agregar, dividir, fusionar, repriorizar o descartar módulos, y aceptar los candidatos que proponga el agente. Siempre con motivo.
 
-Este archivo no es "memoria de la IA". Es un archivo que **todo traspaso incluye** como configuración efectiva, así que cualquier agente de cualquier herramienta lo lee igual.
+**Abrir un módulo** sigue el mismo patrón que el proyecto, a menor escala. El agente prepara tres cosas:
+
+1. **Entender:** objetivo, alcance, fuera de alcance, riesgos, y los ADR y contratos que aplican. Es la "spec" de SDD, pero corta.
+2. **Configurar:** el agente **recomienda** según el riesgo: pagos, seguridad o migraciones → Pair; un CRUD simple → Delegado. Si el humano elige menos control que el recomendado, el agente lo advierte una vez y anota el riesgo. El humano decide. En `module.md` solo se guardan las diferencias, cada una con su motivo.
+3. **Ítems:** la lista propuesta, con ítems verticales que cumplan INVEST.
+
+Primero pregunta lo que no puede deducir. Después muestra las tres cosas juntas y el humano las aprueba **una vez**: corrige, quita, agrega o prioriza antes de aprobar. Los ítems aceptados quedan `Pendiente`.
+
+Se puede volver a ejecutar a mitad del módulo: el cambio aplica desde el siguiente slice y queda en el historial.
+
+`module.md` no es "memoria de la IA". **Todo traspaso** lo incluye como configuración efectiva, así que cualquier agente de cualquier herramienta lo lee igual.
 
 ### 4.4 Excepción por ítem
 
@@ -224,8 +250,9 @@ baton/backlog/
   HISTORY.md        ← GENERADO, solo crece: fecha | autor | objeto | cambio | motivo | ref
 ```
 
-- **Ítem (maestro):** frontmatter con id, tipo, módulo, estado, prioridad, iteración y excepciones de configuración, más el cuerpo con el valor y los criterios *Dado / Cuando / Entonces*. No guarda enlaces: los tests, slices y commits salen del lock, el plan y los reportes.
-- **sync:** detecta los cambios en los ítems desde el último sync. Pide el motivo de cada cambio si no lo tiene, regenera `BACKLOG.md` y agrega las entradas nuevas a `HISTORY.md`.
+- **Ítem (maestro):** frontmatter con id, tipo, módulo, estado, prioridad, iteración y excepciones de configuración, más el cuerpo con el propósito (según el tipo) y los criterios *Dado / Cuando / Entonces*. No guarda enlaces: los tests, slices y commits salen del lock, el plan y los reportes.
+- **Módulos (maestro):** cada `module.md` es una fila del mapa de módulos. `BACKLOG.md` muestra el mapa arriba de los ítems.
+- **sync:** detecta los cambios en ítems, módulos, visión, ADR, configuración, planes y el lock desde el último sync. Pide el motivo de cada cambio si no lo tiene, regenera `BACKLOG.md` y agrega las entradas nuevas a `HISTORY.md`.
 - **Edición humana:** el humano puede editar cualquier ítem a mano. El siguiente sync pide el motivo y propaga el cambio.
 - **Trazabilidad:** ítem → criterio → test → slice → commit. Es la base de la app visual.
 
@@ -251,7 +278,8 @@ stateDiagram-v2
     [*] --> Pendiente: humano agrega
     Candidato --> Pendiente: humano acepta
     Candidato --> Descartado
-    Pendiente --> Listo: Navigator refina
+    Pendiente --> Candidato: humano lo deja para después
+    Pendiente --> Listo: Navigator detalla (criterios + slices)
     Listo --> TestsEnRevision: Autor de tests escribe
     TestsEnRevision --> Listo: Aprobador rechaza
     TestsEnRevision --> TestsCongelados: Aprobador congela
@@ -268,6 +296,18 @@ stateDiagram-v2
 ```
 
 Sin Verificador, `EnVerificación` se salta. Según la autonomía, `EnRevisión` pasa automáticamente y el humano revisa después (al cerrar el ítem o el módulo).
+
+Un ítem `Pendiente` solo avanza cuando **su módulo está `Activo`**. Así el trabajo se concentra en un módulo a la vez.
+
+### 7.1 Ciclo de vida del módulo
+
+| Estado | Significado | Turno |
+|---|---|---|
+| Candidato | propuesto por el agente | Navigator: aceptar o descartar |
+| Planificado | en el mapa, con objetivo y prioridad | Navigator: abrirlo cuando sea el siguiente |
+| Activo | entendido, configurado y con ítems | sus ítems siguen su propio ciclo |
+| Cerrado | sin ítems abiertos y revisado | se puede reabrir |
+| Descartado | ya no se hará | se puede volver a planificar |
 
 ---
 
@@ -296,21 +336,21 @@ Los roles pueden estar en un subagente, en otra sesión del mismo agente o en ot
 
 ```
 baton/
-  config.md                      proyecto (setup)
+  config.md                      proyecto (baton-start)
   acceptance.lock                sumas de verificación de tests congelados
-  bin/baton.py                    herramienta determinista (la instala setup)
+  bin/baton.py                   herramienta determinista (la instala baton-start)
   hooks/pre-commit               protección de tests
   templates/                     plantillas de archivos
   .sync/snapshot.json            instantánea del último sync
   system/
-    overview.md                  mapa del sistema
+    overview.md                  visión: propósito, alcance, escala, restricciones, arquitectura
     adr/ADR-0001-<tema>.md       decisiones
   backlog/
     items/US-001.md              MAESTRO
     BACKLOG.md                   generado
     HISTORY.md                   generado, solo crece
   modules/<módulo>/
-    module.md                    kickoff: alcance + diferencias de config con motivo
+    module.md                    fila del mapa de módulos; al abrirlo: alcance + diferencias de config
     plans/US-001.md              slices del ítem
     requests/US-001-R1.md        escalamientos y solicitudes de cambio de tests
     handoffs/<fecha>-<ítem>-<rol>.md
@@ -320,25 +360,25 @@ tests/acceptance/...             en la ruta de tests del proyecto, protegidos po
 
 ---
 
-## 10. Skills previstas
+## 10. Skills
 
-Cada skill tiene un **contrato de entrada y salida**. Si una se quita, su salida se puede dar a mano.
+Cada skill tiene un **contrato de entrada y salida**. Si una se quita, su salida se puede dar a mano. Para el humano basta con recordar **`baton`**, el router: dice qué rol tiene el turno y llama a la skill que toca.
+
+Solo se juntan pasos de un **mismo rol**. Por ejemplo, detallar y planificar un ítem son los dos del Navigator. Los pasos de roles distintos nunca se juntan: separarlos es el núcleo del control.
 
 | Skill | Rol | Entrada | Salida |
 |---|---|---|---|
-| `setup` | humano | preguntas | `config.md`, estructura, hook |
-| `vision` | Navigator | ideas, contexto | `system/`, ítems ligeros |
-| `kickoff` | Navigator | config, alcance | `module.md` |
-| `refine` | Navigator | ítem ligero | ítem con criterios (Definition of Ready) |
-| `plan` | Navigator | ítem listo, mapa | `plans/<ítem>.md` en slices |
-| `tests` | Autor de tests | criterios, plan | tests de aceptación en rojo verificado |
-| `approve` | Aprobador | tests | `acceptance.lock` actualizado |
-| `drive` | Driver | traspaso | código, tests unitarios, reporte de slice |
-| `verify` | Verificador | reporte, diff, lock | veredicto con hallazgos |
-| `review` | humano | reportes | aprobación o correcciones |
-| `sync` | cualquiera | ítems | `BACKLOG.md`, `HISTORY.md` |
-| `next` | cualquiera | estados | qué rol tiene el turno y sobre qué |
-| `adapter-*` | – | ítems | sincronización con Jira, Trello o GitHub Issues |
+| `baton` | cualquiera | estados, traspasos | qué rol tiene el turno y qué paso toca; ejecuta la skill |
+| `baton-start` | humano + Navigator | el repositorio, entrevista | visión, ADR-0001, `config.md`, mapa de módulos, hook |
+| `baton-module` | Navigator | visión, mapa | mapa editado; módulo abierto con alcance, configuración e ítems |
+| `baton-item` | Navigator | ítem ligero | ítem con criterios (Definition of Ready) + plan en slices |
+| `baton-tests` | Autor de tests | criterios, plan | tests de aceptación en rojo verificado |
+| `baton-approve` | Aprobador | tests | `acceptance.lock` actualizado |
+| `baton-drive` | Driver | traspaso | código, tests unitarios, reporte de slice |
+| `baton-verify` | Verificador | reporte, diff, lock | veredicto con hallazgos (pendiente) |
+| `baton-review` | humano | reportes | aprobación o correcciones (pendiente) |
+| `baton-sync` | cualquiera | archivos maestros | `BACKLOG.md`, `HISTORY.md` |
+| `adapter-*` | – | ítems | sincronización con Jira, Trello o GitHub Issues (pendiente) |
 
 ---
 
@@ -346,23 +386,26 @@ Cada skill tiene un **contrato de entrada y salida**. Si una se quita, su salida
 
 ```mermaid
 flowchart TD
-    SET["Setup del proyecto<br/>config.md · estructura · hook"] --> V
-
-    subgraph DIS["Diseño: Navigator = humano + agente razonador"]
-        V["Visión y mapa del sistema<br/>arquitectura · ADR · contratos"]
-        B["Backlog ligero<br/>títulos + prioridad"]
-        C["Propuestas del agente<br/>= ítems candidatos"]
-        V --> B
-        C -->|"humano acepta"| B
+    subgraph INI["Inicio: baton-start, una vez y actualizable"]
+        DET["Detectar<br/>¿nuevo o existente? · stack · tests"] --> ENT["Entender el proyecto<br/>entrevista o análisis · visión confirmada"]
+        ENT --> STK["Escala y stack<br/>ADR-0001 con 'revisar si'"]
+        STK --> CFG["Configurar<br/>variables recomendadas con contexto"]
+        CFG --> MAP["Mapa de módulos<br/>épicas con prioridad, iterable"]
     end
 
-    B --> K["Kickoff del módulo<br/>hereda config · cambia solo diferencias"]
-    K --> S{"Siguiente ítem priorizado<br/>flujo continuo o iteración"}
-    S --> R["Refinar justo a tiempo<br/>criterios Dado/Cuando/Entonces<br/>+ revisión de seguridad"]
-    R --> DOR{"¿Definition of Ready?"}
-    DOR -->|"no: ambigüedad"| R
-    DOR -->|"sí"| P["Plan en slices verticales<br/>slice 1 = esqueleto andante"]
-    P --> TA["Autor de tests<br/>tests de aceptación en rojo verificado"]
+    MAP --> MOD
+    C["Propuestas del agente<br/>= módulos o ítems candidatos"] -->|"humano acepta"| MAP
+
+    subgraph MODS["Módulo: baton-module"]
+        MOD["Entender el módulo<br/>alcance · fuera de alcance · riesgos"] --> MCFG["Configurar<br/>hereda · recomienda según riesgo"]
+        MCFG --> MIT["Ítems del módulo<br/>propone · editas · aceptas → Pendiente"]
+    end
+
+    MIT --> S{"Siguiente ítem priorizado<br/>flujo continuo o iteración"}
+    S --> R["Detallar el ítem: baton-item<br/>criterios Dado/Cuando/Entonces · seguridad<br/>slices verticales, S1 = esqueleto andante"]
+    R --> DOR{"¿Una confirmación<br/>y Definition of Ready?"}
+    DOR -->|"no: ajustar"| R
+    DOR -->|"sí"| TA["Autor de tests<br/>tests de aceptación en rojo verificado"]
     TA --> AP{"Aprobador de tests<br/>nunca el Driver ni el autor"}
     AP -->|"rechaza"| TA
     AP -->|"aprueba"| FZ["Congelar<br/>acceptance.lock"]
@@ -384,7 +427,7 @@ flowchart TD
     GATE -->|"ok"| MAS{"¿Quedan slices del ítem?"}
     MAS -->|"sí"| RED
     MAS -->|"no"| SYNC["sync: actualiza ítem<br/>regenera BACKLOG.md<br/>agrega a HISTORY.md"]
-    SYNC -->|"aprendizajes: ítems nuevos o cambios"| B
+    SYNC -->|"aprendizajes: módulos o ítems nuevos"| MAP
     SYNC --> S
 ```
 
@@ -424,9 +467,10 @@ flowchart LR
 
 - [x] Nombre de la metodología: **Baton**.
 - [x] Formatos exactos: ítem, `config.md`, `module.md`, plan, traspaso, reporte de slice, `acceptance.lock`. Ver [FORMATOS.md](FORMATOS.md).
-- [ ] Revisar las decisiones de formato (sección 11 de FORMATOS.md).
-- [x] Cómo detecta `sync` los cambios: con una instantánea propia (FORMATOS.md, sección 11).
-- [x] Skills del núcleo: `baton-setup`, `baton-kickoff`, `baton-refine`, `baton-plan`, `baton-tests`, `baton-approve`, `baton-drive`, `baton-sync` y `baton-next`, más `baton.py`. Ver [skills/README.md](skills/README.md).
+- [ ] Revisar las decisiones de formato (sección 12 de FORMATOS.md).
+- [x] Cómo detecta `sync` los cambios: con una instantánea propia (FORMATOS.md, sección 12).
+- [x] Skills del núcleo: `baton` (router), `baton-start`, `baton-module`, `baton-item`, `baton-tests`, `baton-approve`, `baton-drive` y `baton-sync`, más `baton.py`. Ver [skills/README.md](skills/README.md).
+- [x] Flujo de inicio: entender el proyecto (nuevo o existente) antes de configurar, mapa de módulos iterable y tipo de backlog principal más auxiliares (retroalimentación del piloto).
 - [ ] Skills `baton-verify`, `baton-review` y los adaptadores.
 - [ ] Probar el flujo con un proyecto pequeño real antes de construir la app visual.
 - [ ] App visual: tablero por estados, trazabilidad ítem → test → commit, editor de configuración por capas.

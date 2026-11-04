@@ -3,7 +3,7 @@
 # Uso: pruebas/e2e.sh [directorio-temporal]
 set -u
 AQUI=$(cd "$(dirname "$0")" && pwd)
-FX=$AQUI/fixtures; D=${1:-$(mktemp -d)/demo}; SRC=$AQUI/../skills/baton-setup/assets/baton.py
+FX=$AQUI/fixtures; D=${1:-$(mktemp -d)/demo}; SRC=$AQUI/../skills/baton-start/assets/baton.py
 FALLAS=0
 rm -rf $D && mkdir -p $D && cd $D && git init -q && git config user.email t@t && git config user.name t
 python3 $SRC init --hook --codeowners @juan >/dev/null
@@ -27,7 +27,9 @@ echo "# conftest" > tests/conftest.py
 python3 baton/bin/baton.py estado US-001 TestsEnRevision >/dev/null
 git add -A && git commit -qm "tests" >/dev/null && ok "autor commitea tests nuevos (ítem en TestsEnRevision)"
 python3 baton/bin/baton.py lock aprobar --item US-001 --aprobado-por sonnet >/dev/null 2>&1 && bad "driver aprueba" || ok "driver no puede aprobar"
+mkdir -p tests/acceptance/catalogo/__pycache__ && echo basura > tests/acceptance/catalogo/__pycache__/US_001_listar_test.cpython-314.pyc
 python3 baton/bin/baton.py lock aprobar --item US-001 --aprobado-por juan >/dev/null && python3 baton/bin/baton.py estado US-001 TestsCongelados >/dev/null
+grep -q "pyc" baton/acceptance.lock && bad "el lock congeló un .pyc" || ok "el lock ignora __pycache__"
 python3 baton/bin/baton.py sync --autor juan --motivo "aprobación inicial" >/dev/null && git add -A && git commit -qm approve >/dev/null && ok "aprobación + commit"
 # ataques
 sed -i 's/self.fail("no implementado")/pass/' tests/acceptance/catalogo/US_001_listar_test.py
@@ -74,6 +76,74 @@ creado: 2026-11-03
 ---
 MD
 python3 baton/bin/baton.py efectiva US-004 | grep -A1 "verificador_activo" | grep -q "valor: true" && ok "Delegado fuerza verificador" || bad "verificador no forzado"
+# primer congelado sin commit intermedio en TestsEnRevision (D22)
+cat >> baton/backlog/items/US-004.md <<'MD'
+
+## Valor
+Como cliente quiero ver la ficha para decidir.
+
+## Criterios de aceptación
+
+### AC-1 · Ficha con precio
+- **Dado** un producto de $10
+- **Cuando** abro su ficha
+- **Entonces** veo "$10"
+
+## Seguridad
+sin impacto
+
+## Preguntas abiertas
+MD
+printf -- '---\nformato: 1\nitem: US-004\nversion: 1\nslices:\n  - id: S1\n    titulo: "Esqueleto: ficha"\n    criterios: [AC-1]\n---\n## S1 · Esqueleto\n' > baton/modules/catalogo/plans/US-004.md
+python3 baton/bin/baton.py estado US-004 Listo >/dev/null
+printf 'import unittest\nclass T(unittest.TestCase):\n    def test_US_004_AC_1_ficha(self): self.fail("no implementado")\n' > tests/acceptance/catalogo/US_004_ficha_test.py
+python3 baton/bin/baton.py estado US-004 TestsEnRevision >/dev/null
+python3 baton/bin/baton.py lock aprobar --item US-004 --aprobado-por juan >/dev/null && python3 baton/bin/baton.py estado US-004 TestsCongelados >/dev/null
+python3 baton/bin/baton.py sync --autor juan --motivo "aprobación inicial" >/dev/null
+git add -A && git commit -qm "US-004 aprobado" >/dev/null 2>&1 && ok "primer congelado sin commit intermedio pasa el hook" || bad "primer congelado rechazado sin commit intermedio"
+printf 'import unittest\nclass T(unittest.TestCase):\n    def test_US_001_AC_1_extra(self): pass\n' > tests/acceptance/catalogo/US_001_extra_test.py
+H=$(sha256sum tests/acceptance/catalogo/US_001_extra_test.py | cut -d' ' -f1)
+echo "tests/acceptance/catalogo/US_001_extra_test.py  $H  US-001  AC-1  juan  2026-11-03  -" >> baton/acceptance.lock
+git add -A; git commit -qm hack4 >/dev/null 2>&1 && bad "congeló un test nuevo de un ítem ya congelado" || ok "rechaza congelar un test nuevo de un ítem ya congelado"
+git reset -q --hard HEAD; git clean -qfd
+python3 baton/bin/baton.py estado US-002 Candidato >/dev/null 2>&1 && python3 baton/bin/baton.py estado US-002 Pendiente >/dev/null && ok "Pendiente → Candidato (para después) y de vuelta" || bad "Pendiente → Candidato rechazado"
+# flujo de inicio: visión, mapa de módulos y tipos de backlog
+mkdir -p baton/system && cp $FX/../../skills/baton-start/assets/templates/overview.md baton/system/overview.md
+python3 baton/bin/baton.py sync --autor juan --motivo "visión inicial" >/dev/null
+grep -q "| vision | creado" baton/backlog/HISTORY.md && ok "sync registra la visión" || bad "visión no registrada"
+python3 baton/bin/baton.py estado US-002 Listo 2>&1 | grep -q "módulo Activo" && ok "ítem no pasa a Listo con su módulo sin abrir" || bad "módulo no abierto aceptado"
+mkdir -p baton/modules/reportes
+cat > baton/modules/reportes/module.md <<'MD'
+---
+formato: 1
+modulo: reportes
+titulo: Reportes
+estado: Candidato
+prioridad: 5
+origen: agente
+propuesto_por: opus
+creado: 2026-11-03
+config: {}
+---
+## Objetivo
+Exportar los gastos.
+
+## Por qué se propone
+Los usuarios lo piden.
+MD
+python3 baton/bin/baton.py next --rol navigator | grep -q "modulo:reportes · Candidato" && ok "next pide decidir el módulo candidato" || bad "next sin módulo candidato"
+python3 baton/bin/baton.py estado modulo:reportes Activo >/dev/null 2>&1 && bad "módulo candidato pasó directo a Activo" || ok "módulo candidato no salta a Activo"
+python3 baton/bin/baton.py estado modulo:reportes Descartado >/dev/null && ok "módulo candidato descartado"
+python3 baton/bin/baton.py estado modulo:catalogo Cerrado 2>&1 | grep -q "ítems en desarrollo" && ok "no cierra un módulo con ítems en desarrollo" || bad "cerró módulo con trabajo"
+grep -q "## Mapa de módulos" baton/backlog/BACKLOG.md && ok "BACKLOG.md muestra el mapa de módulos" || bad "sin mapa de módulos"
+sed -e 's/^id: US-004/id: TEC-001/; s/^tipo: historia/tipo: tecnico/' baton/backlog/items/US-004.md > baton/backlog/items/TEC-001.md
+python3 baton/bin/baton.py validar 2>&1 | grep -q "no está en backlog.principal" && ok "rechaza un tipo fuera del backlog configurado" || bad "tipo fuera del backlog aceptado"
+rm baton/backlog/items/TEC-001.md
+mkdir -p $D-vacio && git -C $D-vacio init -q && python3 baton/bin/baton.py --root $D-vacio detectar | grep -q "inicio: nuevo" && ok "detectar: proyecto vacío es nuevo" || bad "detectar"
+python3 baton/bin/baton.py init --hook >/dev/null 2>&1 && ok "init --hook reinstala su propio hook" || bad "init --hook rechaza su propio hook"
+sed -i 's/verificador:     { entidad: codex, transporte: externo, activo: false }/verificador:     { entidad: null, transporte: sesion, activo: false }/' baton/config.md
+python3 baton/bin/baton.py validar 2>&1 | grep -q "el verificador no tiene entidad" && ok "avisa si el verificador no tiene entidad" || bad "sin aviso de verificador sin entidad"
+git checkout -q -- baton/config.md
 python3 baton/bin/baton.py validar >/dev/null && ok "validar ok al final" || { bad "validar"; python3 baton/bin/baton.py validar; }
 echo; grep -A6 "## catalogo" baton/backlog/BACKLOG.md
 echo; [ $FALLAS -eq 0 ] && echo "todo ok" || { echo "$FALLAS falla(s)"; exit 1; }

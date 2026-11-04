@@ -3,11 +3,11 @@ formato: 1
 id: <PREFIJO-nnn>
 titulo: <título>
 tipo: historia
-modulo: <módulo o null>
+modulo: <módulo>
 estado: Pendiente
 prioridad: <n>
 iteracion: null
-origen: humano              # humano | agente (agrega propuesto_por)
+origen: humano              # humano | agente (agrega propuesto_por; estado Candidato)
 creado: <AAAA-MM-DD>
 dependencias: []
 config: {}                  # solo subir/bajar autonomia, agregar aprobadores o activar verificador

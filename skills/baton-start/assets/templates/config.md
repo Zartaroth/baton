@@ -8,9 +8,14 @@ cadencia:
   iteracion_dias: null      # obligatorio si modo = scrum
 wip: 3                      # máximo de ítems en EnCurso, Escalado, EnVerificacion y EnRevision
 
+backlog:
+  principal: historia       # historia | requerimiento | ticket (define la plantilla de los ítems)
+  auxiliares: [bug, tecnico]
+
 tipos:                      # tipo de ítem → prefijo del id
   historia: US
-  requisito: RQ
+  requerimiento: RQ
+  ticket: TK
   bug: BUG
   tecnico: TEC
 
