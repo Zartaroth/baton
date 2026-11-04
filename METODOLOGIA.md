@@ -6,7 +6,7 @@ Evolución de SDD (Spec-Driven Development). Su objetivo es que el trabajo con a
 
 Se inspira en las prácticas que mejor funcionaban antes de los agentes: backlog ágil, slices verticales, TDD y pair programming.
 
-> Estado: versión 0.4 (2026-11-03). Los formatos de archivo están en [FORMATOS.md](FORMATOS.md) y las skills del núcleo en [skills/](skills/README.md). Pasos siguientes: probar con un proyecto real → `verify`, `review` y adaptadores → app visual.
+> Estado: versión 0.4.1 (2026-11-04). Los formatos de archivo están en [FORMATOS.md](FORMATOS.md) y las skills del núcleo en [skills/](skills/README.md). Pasos siguientes: probar con un proyecto real → `verify`, `review` y adaptadores → app visual.
 
 ---
 
