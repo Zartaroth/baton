@@ -18,7 +18,7 @@ Nunca lo muevas sin respuesta.
 
 ## Pasos
 
-1. Lee el ítem, `baton/system/overview.md`, los ADR relevantes y el `module.md` de su módulo.
+1. Lee el ítem, `baton/system/overview.md`, `baton/system/bitacora.md` (desvíos y decisiones vigentes), los ADR relevantes y el `module.md` de su módulo.
 2. **Valor.** Escribe `## Valor` como "Como <rol> quiero <acción> para <beneficio>".
 3. **Criterios.** Escribe uno por comportamiento observable, con estas reglas:
    - formato `### AC-<n> · <nombre>` y viñetas **Dado** / **Cuando** / **Entonces** (y **Y**);

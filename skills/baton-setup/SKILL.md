@@ -38,10 +38,11 @@ Valida en cuanto recibas las respuestas, no al final. Si el humano asigna al dri
 
 1. Ejecuta `python3 <ruta de esta skill>/assets/baton.py init [--hook] [--codeowners "@usuario"]` desde la raíz del repositorio.
 2. Escribe `baton/config.md` a partir de la plantilla, con las respuestas.
-3. Ejecuta `python3 baton/bin/baton.py validar` y corrige hasta que diga `ok`.
-4. Si generaste CODEOWNERS, agrega las reglas que imprime `python3 baton/bin/baton.py codeowners "@usuario"`.
-5. Ejecuta `python3 baton/bin/baton.py sync --autor <persona> --motivo "setup inicial" --ref baton-setup`.
-6. Muestra un resumen corto de la configuración y los archivos creados. Propón hacer commit, pero no lo hagas sin permiso.
+3. Completa `baton/system/operacion.md` (lo creó `init`): cómo levantar el entorno, cómo medir, reglas de git, arquitectura en una página y fuentes de referencia. Pregunta lo que no sepas. Deja `baton/system/bitacora.md` con `## Ahora` en una línea; la mantiene el Navigator. Si el repositorio tiene `AGENTS.md` (o el archivo de entrada de tu herramienta), añade: *"Para continuar el trabajo: lee `baton/system/operacion.md` y `baton/system/bitacora.md` y ejecuta `python3 baton/bin/baton.py next`."*
+4. Ejecuta `python3 baton/bin/baton.py validar` y corrige hasta que diga `ok`.
+5. Si generaste CODEOWNERS, agrega las reglas que imprime `python3 baton/bin/baton.py codeowners "@usuario"`.
+6. Ejecuta `python3 baton/bin/baton.py sync --autor <persona> --motivo "setup inicial" --ref baton-setup`.
+7. Muestra un resumen corto de la configuración y los archivos creados. Propón hacer commit, pero no lo hagas sin permiso.
 
 ## Modo cambio
 

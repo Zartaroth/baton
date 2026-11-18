@@ -11,8 +11,18 @@ Skills del núcleo de la metodología, en formato Agent Skills (`SKILL.md`). Ver
 | `baton-tests` | Autor de tests | ítem en Listo |
 | `baton-approve` | Aprobador (persona) | ítem en TestsEnRevision |
 | `baton-drive` | Driver | ítem en TestsCongelados o EnCurso |
+| `baton-verify` | Verificador | reporte de slice en EnVerificacion |
 | `baton-sync` | cualquiera | después de editar a mano o cuando otra skill lo indique |
 | `baton-next` | cualquiera | "¿qué me toca?" o "toma tu turno" |
+
+## Cambiar de IA sin perder el hilo
+
+Dos archivos del proyecto hacen que cualquier agente, de cualquier herramienta o modelo, continúe sin la conversación anterior:
+
+- `baton/system/operacion.md` (estable): cómo levantar el entorno, cómo medir, reglas de git y trampas conocidas.
+- `baton/system/bitacora.md` (viva, la mantiene el Navigator): qué está en curso, qué sigue, desvíos acordados, decisiones pendientes para el humano y deuda conocida.
+
+`baton.py next` recuerda leerlos y los traspasos los incluyen en `leer`. Para retomar basta con decirle a la nueva IA: *"lee AGENTS.md y ejecuta baton-next"*.
 
 ## Reparto entre skills y `baton.py`
 
@@ -37,4 +47,4 @@ bash pruebas/e2e.sh
 
 ## Pendiente
 
-`baton-verify`, `baton-review` y los adaptadores (`adapter-jira`, `adapter-trello`, `adapter-github`).
+`baton-review` y los adaptadores (`adapter-jira`, `adapter-trello`, `adapter-github`).

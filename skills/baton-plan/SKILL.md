@@ -11,7 +11,7 @@ El formato está en FORMATOS.md, sección 5. La plantilla es `baton/templates/pl
 
 ## Pasos
 
-1. Lee el ítem, su `module.md`, `baton/system/overview.md` y los ADR. Consulta `slice_max` con `python3 baton/bin/baton.py efectiva <ítem>`.
+1. Lee el ítem, su `module.md`, `baton/system/overview.md`, `baton/system/bitacora.md` (desvíos y decisiones vigentes) y los ADR. Consulta `slice_max` con `python3 baton/bin/baton.py efectiva <ítem>`.
 2. **Divide en slices verticales.** Cada slice atraviesa las capas necesarias (UI → API → BD, o la forma que tenga el sistema) y termina en algo que se puede ejecutar.
    - **S1 es el esqueleto andante:** el camino más delgado de punta a punta para el criterio principal. Si el módulo es nuevo, S1 también deja montado lo mínimo de infraestructura.
    - Cada criterio vigente va en **exactamente un** slice: el slice donde su test debe pasar.

@@ -643,8 +643,9 @@ def no_tocar(pr: Proyecto, rol: str, iid: str, m: str) -> list[str]:
 def leer_para(pr: Proyecto, rol: str, iid: str, m: str, sid: str | None) -> list[str]:
     it = pr.items[iid]
     res = [pr.rel(it["path"]), f"baton/modules/{m}/module.md"]
-    if (pr.flow / "system/overview.md").exists():
-        res.append("baton/system/overview.md")
+    for sist in ("system/operacion.md", "system/bitacora.md", "system/overview.md"):
+        if (pr.flow / sist).exists():
+            res.append(f"baton/{sist}")
     if iid in pr.planes:
         res.append(pr.rel(pr.planes[iid]["path"]))
     if rol in ("aprobador_tests", "verificador"):
@@ -998,6 +999,10 @@ def sync(pr: Proyecto, autor: str, general: str | None, especificos: dict, ref: 
 
 def next_(pr: Proyecto, rol: str | None, entidad: str | None) -> list[str]:
     salida = []
+    leer = [f"baton/{n}" for n in ("system/operacion.md", "system/bitacora.md") if (pr.flow / n).exists()]
+    if leer:
+        salida.append("Antes de trabajar lee: " + ", ".join(leer) + " (cómo operar y estado vivo del proyecto).")
+        salida.append("")
     en_curso = sum(1 for it in pr.items.values() if it["fm"].get("estado") in WIP_ESTADOS)
     wip = pr.config.get("wip")
     pendientes = {}
@@ -1212,8 +1217,13 @@ def init(destino: Path, hook: bool, codeowners: str | None, forzar: bool) -> lis
     shutil.copy2(hook_src, flow / "hooks" / "pre-commit")
     (flow / "hooks" / "pre-commit").chmod(0o755)
     hechos.append("baton/hooks/pre-commit")
-    for nombre, contenido in [("acceptance.lock", LOCK_CABECERA),
-                              ("system/overview.md", "# Mapa del sistema\n\n## Arquitectura\n\n## Contratos\n\n## Decisiones\nVer adr/.\n")]:
+    sistema = [("acceptance.lock", LOCK_CABECERA),
+               ("system/overview.md", "# Mapa del sistema\n\n## Arquitectura\n\n## Contratos\n\n## Decisiones\nVer adr/.\n")]
+    for nombre in ("operacion.md", "bitacora.md"):
+        plantilla = tpl / nombre
+        if plantilla.exists():
+            sistema.append((f"system/{nombre}", plantilla.read_text(encoding="utf-8")))
+    for nombre, contenido in sistema:
         p = flow / nombre
         if not p.exists():
             p.write_text(contenido, encoding="utf-8")

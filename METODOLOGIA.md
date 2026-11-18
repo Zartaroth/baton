@@ -286,6 +286,7 @@ Los roles pueden estar en un subagente, en otra sesión del mismo agente o en ot
   - `subagente`: se lanza automáticamente;
   - `sesión`: el humano abre otra sesión y le indica "toma tu turno";
   - `externo`: otra herramienta lee el archivo.
+- **Continuidad entre IA:** dos archivos del proyecto reemplazan a la memoria de la conversación. `baton/system/operacion.md` dice cómo operar el repositorio (entorno, cómo medir, reglas de git, trampas conocidas) y `baton/system/bitacora.md` guarda el estado vivo que no está en los maestros (en curso, siguiente, desvíos acordados, decisiones pendientes para el humano, deuda conocida). El Navigator actualiza la bitácora al cerrar cada sesión. Con ellos, una IA nueva, sea del modelo que sea, retoma con *"lee AGENTS.md y ejecuta baton-next"*.
 - **Comando "siguiente":** cualquier agente puede preguntar "¿qué me toca?". La respuesta sale de los estados y los traspasos, sin depender de la conversación.
 - **Instrucciones neutrales:** las skills se escriben en el formato abierto de Agent Skills (`SKILL.md`). Lo propio de cada herramienta, como hooks de Claude Code o comandos de Codex, va en adaptadores, nunca en el núcleo.
 - **Protección independiente del agente:** el congelamiento de tests se garantiza con git y CI, no con permisos de un agente.
@@ -304,6 +305,8 @@ baton/
   .sync/snapshot.json            instantánea del último sync
   system/
     overview.md                  mapa del sistema
+    operacion.md                 cómo operar el repositorio (estable)
+    bitacora.md                  estado vivo del Navigator para continuar sin la conversación
     adr/ADR-0001-<tema>.md       decisiones
   backlog/
     items/US-001.md              MAESTRO
@@ -427,6 +430,8 @@ flowchart LR
 - [ ] Revisar las decisiones de formato (sección 11 de FORMATOS.md).
 - [x] Cómo detecta `sync` los cambios: con una instantánea propia (FORMATOS.md, sección 11).
 - [x] Skills del núcleo: `baton-setup`, `baton-kickoff`, `baton-refine`, `baton-plan`, `baton-tests`, `baton-approve`, `baton-drive`, `baton-sync` y `baton-next`, más `baton.py`. Ver [skills/README.md](skills/README.md).
-- [ ] Skills `baton-verify`, `baton-review` y los adaptadores.
+- [x] Skill `baton-verify`.
+- [x] Continuidad entre IA: `operacion.md` y `bitacora.md` (sección 8).
+- [ ] Skill `baton-review` y los adaptadores.
 - [ ] Probar el flujo con un proyecto pequeño real antes de construir la app visual.
 - [ ] App visual: tablero por estados, trazabilidad ítem → test → commit, editor de configuración por capas.

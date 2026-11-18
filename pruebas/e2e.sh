@@ -5,16 +5,16 @@ set -u
 AQUI=$(cd "$(dirname "$0")" && pwd)
 FX=$AQUI/fixtures; D=${1:-$(mktemp -d)/demo}; SRC=$AQUI/../skills/baton-setup/assets/baton.py
 FALLAS=0
-rm -rf $D && mkdir -p $D && cd $D && git init -q && git config user.email t@t && git config user.name t
-python3 $SRC init --hook --codeowners @juan >/dev/null
+rm -rf "$D" && mkdir -p "$D" && cd "$D" && git init -q && git config user.email t@t && git config user.name t
+python3 "$SRC" init --hook --codeowners @juan >/dev/null
 f(){ python3 baton/bin/baton.py "$@"; local r=$?; echo "  [exit $r]"; }
 ok(){ echo "OK   $1"; }; bad(){ echo "FALLA $1"; FALLAS=$((FALLAS+1)); }
-cp $FX/config.md baton/config.md
+cp "$FX"/config.md baton/config.md
 mkdir -p baton/modules/{catalogo,pagos}/{plans,requests,reports}
-cp $FX/module.md baton/modules/catalogo/module.md; cp $FX/pagos.md baton/modules/pagos/module.md
-cp $FX/US-00*.md baton/backlog/items/
+cp "$FX"/module.md baton/modules/catalogo/module.md; cp "$FX"/pagos.md baton/modules/pagos/module.md
+cp "$FX"/US-00*.md baton/backlog/items/
 python3 baton/bin/baton.py sync --autor juan --motivo "visión inicial" >/dev/null && git add -A && git commit -qm init >/dev/null && ok "setup + sync + commit"
-cp $FX/plan-US-001.md baton/modules/catalogo/plans/US-001.md
+cp "$FX"/plan-US-001.md baton/modules/catalogo/plans/US-001.md
 python3 baton/bin/baton.py estado US-001 Listo >/dev/null && ok "Pendiente → Listo con DoR"
 mkdir -p tests/acceptance/catalogo
 cat > tests/acceptance/catalogo/US_001_listar_test.py <<'PY'

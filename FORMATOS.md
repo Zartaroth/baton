@@ -45,6 +45,8 @@ Formato exacto de cada archivo del flujo. Complementa [METODOLOGIA.md](METODOLOG
 | Solicitud | `baton/modules/<m>/requests/<ítem>-R<n>.md` | quien escala; decide el Navigator | registro |
 | Traspaso | `baton/modules/<m>/handoffs/<id>.md` | el rol que entrega | registro |
 | Reporte de slice | `baton/modules/<m>/reports/<ítem>-S<n>.md` | Driver, Verificador y humano, cada uno su sección | registro |
+| Manual de operación | `baton/system/operacion.md` | `setup`; Navigator o humano al cambiar el proyecto | maestro |
+| Bitácora | `baton/system/bitacora.md` | Navigator, al cerrar cada sesión | maestro (viva) |
 | Backlog | `baton/backlog/BACKLOG.md` | `sync` | generado |
 | Historial | `baton/backlog/HISTORY.md` | `sync` | generado, solo crece |
 
@@ -541,6 +543,22 @@ Comentarios.
   - En `Checkpoint` y `Delegado`, el slice pasa a `Aprobado` si lo aprobó el Verificador, o a `Terminado` si no hay Verificador. Más tarde, `review` agrega una entrada `alcance: item` o `alcance: modulo` en cada reporte que revisa y deja los `Terminado` en `Aprobado`.
 - **`Terminado` y `Aprobado` son distintos a propósito.** `Terminado` significa "tests en verde, revisión humana pendiente". El Driver nunca marca su propio slice como `Aprobado` (principio 3). Para avanzar al siguiente slice, los dos cuentan como cerrados.
 - El estado del ítem refleja el del slice en curso. Cuando el último slice queda cerrado, el ítem pasa a `Hecho` (en Checkpoint, después de la revisión del ítem).
+
+---
+
+## 9 bis. Continuidad: `baton/system/operacion.md` y `baton/system/bitacora.md`
+
+Permiten cambiar de IA (otra herramienta, otro modelo u otra persona) sin perder el hilo. Plantillas en `baton/templates/operacion.md` y `baton/templates/bitacora.md`; `init` crea ambos archivos.
+
+**`operacion.md` (estable).** Front matter `formato: 1` y `actualizado: <fecha>`. Secciones: `## Entorno` (comandos exactos para levantar todo, cómo saber que está arriba, qué hacer tras un reinicio), `## Cómo medir` (aceptación, unitarios, calidad, regresión mínima, fallos intermitentes conocidos, pila aislada), `## Reglas de git` (convención, árbol compartido, comandos prohibidos, hooks, archivos generados), `## Arquitectura en una página`, `## Fuentes de referencia` y `## Trampas conocidas`. Cambia cuando cambia el proyecto.
+
+**`bitacora.md` (viva).** Front matter `formato: 1`, `actualizado: <instante>` y `por: <entidad>`. Secciones: `## Ahora`, `## En curso` (tabla ítem, rol, quién, qué falta; incluye trabajo sin commit), `## Siguiente`, `## Desvíos acordados` (excepciones vigentes a la metodología, quién las acordó), `## Decisiones pendientes para el humano` (con el valor por defecto que se usa mientras tanto), `## Deuda conocida` (menores registrados que aún no son ítems) y `## Notas de sesión`. La actualiza el Navigator al cerrar cada sesión o antes de un límite de uso.
+
+**Reglas.**
+- Ninguno de los dos reemplaza a los maestros: si la bitácora contradice el estado de un ítem, manda el ítem.
+- Lo que sea una decisión de arquitectura va a un ADR, no a la bitácora.
+- `baton.py next` recuerda leerlos y los traspasos los incluyen en `leer` cuando existen.
+- Nada de secretos en ninguno de los dos.
 
 ---
 

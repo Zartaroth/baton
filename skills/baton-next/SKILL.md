@@ -9,6 +9,7 @@ description: Responde "¿qué me toca?" en la metodología Baton. Lee los estado
 
 ## Pasos
 
+0. **Contexto.** Si existen, lee `baton/system/operacion.md` (cómo operar este proyecto) y `baton/system/bitacora.md` (estado vivo: en curso, siguiente, desvíos, decisiones pendientes). Son la memoria del proyecto: con ellos no necesitas la conversación anterior. Si la bitácora contradice los estados de los ítems, mandan los estados; avisa al Navigator.
 1. Ejecuta `python3 baton/bin/baton.py next`. Si sabes el rol o la entidad de esta sesión, filtra con `--rol <rol>` y/o `--entidad <entidad>`.
 2. Muestra el resultado ordenado por prioridad. Por cada ítem: estado, slice siguiente, traspaso pendiente y si está bloqueado por WIP.
 3. Si el humano dice **"toma tu turno"**:
@@ -35,6 +36,10 @@ description: Responde "¿qué me toca?" en la metodología Baton. Lee los estado
    - **Aprobada, de tipo `diseno` o `plan`:** actualiza el plan o el ADR, ejecuta `estado <ítem>-R<n> Aplicada` y `estado <ítem> TestsCongelados`, y crea un traspaso para `driver`.
    - **Rechazada:** ejecuta `estado <ítem>-R<n> Rechazada` y `estado <ítem> TestsCongelados`, y crea un traspaso para `driver` con la explicación.
 4. Ejecuta sync con el motivo de la decisión.
+
+## Al cerrar una sesión (Navigator)
+
+Antes de terminar, o si se acerca un límite de uso, actualiza `baton/system/bitacora.md`: `## Ahora`, `## En curso` (incluido trabajo sin commit y de quién), `## Siguiente`, las decisiones pendientes nuevas y la deuda nueva. Commitea la bitácora. Es lo que permite que otra IA continúe.
 
 ## No hagas
 
